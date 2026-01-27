@@ -15,6 +15,10 @@
         background-color: #000000;
         color: #ffffff;
         overflow-x: hidden;
+        margin: 0;
+      }
+      #root {
+        min-height: 100vh;
       }
       ::-webkit-scrollbar {
         width: 6px;
@@ -28,14 +32,6 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #22c55e;
-      }
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-      }
-      .animate-shake {
-        animation: shake 0.2s ease-in-out 0s 2;
       }
       .custom-scrollbar::-webkit-scrollbar {
         width: 4px;
@@ -62,5 +58,7 @@
 </head>
 <body>
     <div id="root"></div>
+    <!-- Esta línea es CRÍTICA para que funcione en Vercel -->
+    <script type="module" src="index.tsx"></script>
 </body>
 </html>
