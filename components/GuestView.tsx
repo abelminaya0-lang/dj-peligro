@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Song } from '../types';
 import SongCard from './SongCard';
 import VoteModal from './VoteModal';
-import { Music, CheckCircle, Lock, ChevronRight } from 'lucide-react';
+import { Music, CheckCircle, Lock, ChevronRight, ListMusic, Info } from 'lucide-react';
 
 interface GuestViewProps {
   songs: Song[];
@@ -13,21 +13,31 @@ interface GuestViewProps {
 const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
 
   useEffect(() => {
     const voted = localStorage.getItem('has_voted') === 'true';
     setHasVoted(voted);
+    // Si ya votó anteriormente y refresca, le mostramos el mensaje de confirmación primero
+    if (voted) {
+      setShowSuccessScreen(true);
+    }
   }, []);
 
   const handleVoteSubmit = (name: string, whatsapp?: string) => {
     if (selectedSong) {
       onVote(selectedSong.id, name, whatsapp);
       setHasVoted(true);
+      setShowSuccessScreen(true);
       setSelectedSong(null);
     }
   };
 
-  if (hasVoted) {
+  const handleViewList = () => {
+    setShowSuccessScreen(false);
+  };
+
+  if (hasVoted && showSuccessScreen) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center bg-black">
         <div className="max-w-md w-full bg-neutral-900 rounded-[2.5rem] p-12 border border-neutral-800 shadow-2xl animate-in fade-in zoom-in duration-500">
@@ -35,11 +45,20 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
             <div className="absolute inset-0 bg-green-500/20 blur-3xl rounded-full"></div>
             <CheckCircle className="w-24 h-24 text-green-500 relative z-10" />
           </div>
-          <h1 className="text-4xl font-black mb-4 tracking-tighter">¡Voto Recibido!</h1>
-          <p className="text-neutral-400 text-lg leading-relaxed font-medium">
-            El DJ ya sabe qué canción quieres escuchar. ¡Quédate cerca de la pista!
+          <h1 className="text-4xl font-black mb-4 tracking-tighter">¡Voto Registrado!</h1>
+          <p className="text-neutral-400 text-lg leading-relaxed font-medium mb-10">
+            Tu participación ha sido enviada con éxito. Ya no puedes volver a votar en este evento.
           </p>
-          <div className="mt-12 pt-8 border-t border-neutral-800">
+          
+          <button 
+            onClick={handleViewList}
+            className="w-full bg-white text-black font-black py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all hover:bg-neutral-200 active:scale-95 mb-6 shadow-xl"
+          >
+            <ListMusic className="w-5 h-5" />
+            <span>Ver lista de canciones</span>
+          </button>
+
+          <div className="pt-8 border-t border-neutral-800">
              <a 
               href="#/admin" 
               className="inline-flex items-center space-x-2 text-neutral-600 hover:text-green-500 transition-colors text-xs font-black uppercase tracking-widest"
@@ -62,9 +81,18 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
         <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none text-white">
           🎧 Escoge la <br/><span className="text-green-500">próxima canción</span>
         </h1>
-        <p className="text-neutral-400 text-xl font-medium max-w-sm mx-auto">
-          Toca en <span className="text-green-500 font-bold">Vota aquí</span> para pedir tu tema favorito
-        </p>
+        {hasVoted ? (
+          <div className="bg-neutral-900/50 border border-neutral-800 p-4 rounded-2xl inline-flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+            <Info className="w-5 h-5 text-green-500" />
+            <p className="text-neutral-300 text-sm font-bold">
+              Ya has emitido tu voto. <span className="text-green-500">¡Gracias por participar!</span>
+            </p>
+          </div>
+        ) : (
+          <p className="text-neutral-400 text-xl font-medium max-w-sm mx-auto">
+            Toca en <span className="text-green-500 font-bold">Vota aquí</span> para pedir tu tema favorito
+          </p>
+        )}
       </header>
 
       <div className="grid grid-cols-1 gap-5 flex-grow animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -72,7 +100,8 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
           <SongCard 
             key={song.id} 
             song={song} 
-            onClick={() => setSelectedSong(song)} 
+            disabled={hasVoted}
+            onClick={() => !hasVoted && setSelectedSong(song)} 
           />
         ))}
       </div>
@@ -85,7 +114,6 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
           <div className="w-12 h-1 bg-green-500 rounded-full"></div>
         </div>
         
-        {/* Acceso DJ solicitado como un botón discreto pero accesible */}
         <div className="flex justify-center">
           <a 
             href="#/admin" 
