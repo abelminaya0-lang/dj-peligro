@@ -1,8 +1,9 @@
 
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Song, Vote, SongWithStats } from '../types';
 import StatsChart from './StatsChart';
-import { LogOut, RotateCcw, Users, TrendingUp, Music, ListMusic, BarChart3, Activity, Info } from 'lucide-react';
+import { LogOut, RotateCcw, Activity, BarChart3, ListMusic, Home, ChevronLeft } from 'lucide-react';
 
 interface DjDashboardProps {
   songs: Song[];
@@ -38,9 +39,16 @@ const DjDashboard: React.FC<DjDashboardProps> = ({ songs, votes, onReset, onLogo
           </h1>
           <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs mt-2">Control de votaciones en tiempo real</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link 
+            to="/"
+            className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white px-6 py-4 rounded-2xl border border-neutral-800 transition-all font-bold text-sm"
+          >
+            <Home className="w-4 h-4" />
+            <span className="hidden sm:inline">Ver Votación</span>
+          </Link>
           <button 
-            onClick={() => { if(confirm('¿Reiniciar votos?')) onReset(); }}
+            onClick={() => { if(confirm('¿Reiniciar todos los votos?')) onReset(); }}
             className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white px-6 py-4 rounded-2xl border border-neutral-800 transition-all font-bold text-sm"
           >
             <RotateCcw className="w-4 h-4" />
@@ -88,19 +96,25 @@ const DjDashboard: React.FC<DjDashboardProps> = ({ songs, votes, onReset, onLogo
             <h2 className="text-2xl font-black tracking-tight uppercase italic">Ranking</h2>
           </div>
           <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
-            {songStats.map((song) => (
-              <div key={song.id} className="flex items-center p-4 bg-black/40 rounded-2xl border border-neutral-800">
-                <img src={song.coverUrl} className="w-12 h-12 rounded-lg object-cover mr-4" alt="" />
-                <div className="flex-grow min-w-0">
-                  <h4 className="font-bold text-white truncate">{song.title}</h4>
-                  <p className="text-[10px] text-neutral-500 font-black uppercase">{song.artist}</p>
+            {songStats.length > 0 ? (
+              songStats.map((song) => (
+                <div key={song.id} className="flex items-center p-4 bg-black/40 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-colors">
+                  <img src={song.coverUrl} className="w-12 h-12 rounded-lg object-cover mr-4" alt="" />
+                  <div className="flex-grow min-w-0">
+                    <h4 className="font-bold text-white truncate">{song.title}</h4>
+                    <p className="text-[10px] text-neutral-500 font-black uppercase">{song.artist}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl font-black text-green-500 block">{song.voteCount}</span>
+                    <span className="text-[9px] font-black text-neutral-700 uppercase">{song.percentage.toFixed(0)}%</span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xl font-black text-green-500 block">{song.voteCount}</span>
-                  <span className="text-[9px] font-black text-neutral-700 uppercase">{song.percentage.toFixed(0)}%</span>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-20 text-neutral-700 font-black uppercase tracking-widest text-xs">
+                No hay canciones disponibles
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
