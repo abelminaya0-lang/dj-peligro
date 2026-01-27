@@ -1,0 +1,5 @@
+{
+  "name": "DJ Vote Flow",
+  "description": "A Spotify-inspired real-time song voting platform for events, featuring a public guest portal and a private DJ dashboard with live statistics.",
+  "requestFramePermissions": []
+}
