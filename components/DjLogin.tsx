@@ -15,7 +15,7 @@ const DjLogin: React.FC<DjLoginProps> = ({ onLogin, isDarkMode, toggleTheme }) =
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769720682/avatars-000658755773-nboqus-t500x500-removebg-preview_r7cgsp.png";
+  const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +50,7 @@ const DjLogin: React.FC<DjLoginProps> = ({ onLogin, isDarkMode, toggleTheme }) =
           <header className="mb-12 flex flex-col items-center">
             <div className="relative mb-8 group">
               <div className="absolute inset-0 bg-[#F2CB05] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-              <img src={DJ_LOGO} className="w-28 h-28 relative z-10 bg-[#F2CB05] rounded-[2.5rem] p-3 rotate-6 group-hover:rotate-0 transition-transform duration-500 shadow-2xl shadow-[#F2CB05]/30" alt="Logo" />
+              <img src={DJ_LOGO} className="w-32 h-32 relative z-10 object-contain drop-shadow-[0_10px_20px_rgba(242,203,5,0.4)]" alt="Logo" />
             </div>
             <div className="flex items-center gap-2 mb-2">
               <ShieldCheck className="w-5 h-5 text-[#F2CB05]" />

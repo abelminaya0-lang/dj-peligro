@@ -28,7 +28,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
   const [editSongs, setEditSongs] = useState<Song[]>(activeSongs);
   const [editGenres, setEditGenres] = useState<string[]>(activeGenres);
 
-  const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769720682/avatars-000658755773-nboqus-t500x500-removebg-preview_r7cgsp.png";
+  const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
 
   useEffect(() => {
     if (!votingEndsAt) { setTimeLeft(null); return; }
@@ -76,7 +76,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
       {/* 1. HEADER PRINCIPAL */}
       <header className="flex flex-col lg:flex-row justify-between items-center bg-[var(--card-bg)] p-6 md:p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-xl theme-transition gap-6">
         <div className="flex items-center gap-5">
-          <img src={DJ_LOGO} className="w-16 h-16 bg-[#F2CB05] p-2.5 rounded-2xl shadow-lg rotate-3" alt="DJ Peligro" />
+          <img src={DJ_LOGO} className="w-20 h-20 object-contain drop-shadow-[0_5px_15px_rgba(242,203,5,0.3)]" alt="DJ Peligro" />
           <div>
             <h1 className="text-3xl font-black italic tracking-tighter text-[var(--text-primary)] leading-tight uppercase">SISTEMA <span className="text-[#F2B705]">VOTE FLOW</span></h1>
             <p className="text-neutral-500 text-[10px] font-black uppercase tracking-[0.4em]">Master Control • Live</p>
