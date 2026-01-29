@@ -23,11 +23,24 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : { email: '', isAuthenticated: false };
   });
 
-  // Estado para el temporizador de votación
   const [votingEndsAt, setVotingEndsAt] = useState<number | null>(() => {
     const saved = localStorage.getItem('voting_ends_at');
     return saved ? Number(saved) : null;
   });
+
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   useEffect(() => {
     localStorage.setItem('dj_songs', JSON.stringify(songs));
@@ -51,7 +64,6 @@ const App: React.FC = () => {
 
   const handleVote = useCallback((songId: string, voterName: string, whatsapp?: string) => {
     const now = Date.now();
-    // Validar si la votación sigue activa
     if (votingEndsAt && now > votingEndsAt) {
       alert("La votación ha terminado.");
       return;
@@ -90,11 +102,12 @@ const App: React.FC = () => {
     setVotingEndsAt(null);
   }, []);
 
+  const toggleTheme = () => setIsDarkMode(prev => !prev);
+
   return (
     <HashRouter>
-      <div className="min-h-screen bg-neutral-950 text-white selection:bg-green-500/30">
+      <div className={`min-h-screen theme-transition bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-[#F2CB05]/30`}>
         <Routes>
-          {/* Guest Routes */}
           <Route 
             path="/" 
             element={
@@ -102,18 +115,22 @@ const App: React.FC = () => {
                 songs={songs} 
                 onVote={handleVote} 
                 votingEndsAt={votingEndsAt}
+                isDarkMode={isDarkMode}
+                toggleTheme={toggleTheme}
               />
             } 
           />
-          
-          {/* DJ Admin Routes */}
           <Route 
             path="/admin" 
             element={
               djUser.isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <DjLogin onLogin={(email) => setDjUser({ email, isAuthenticated: true })} />
+                <DjLogin 
+                    onLogin={(email) => setDjUser({ email, isAuthenticated: true })} 
+                    isDarkMode={isDarkMode}
+                    toggleTheme={toggleTheme}
+                />
               )
             } 
           />
@@ -130,14 +147,14 @@ const App: React.FC = () => {
                   votingEndsAt={votingEndsAt}
                   onStartVoting={startVotingSession}
                   onStopVoting={stopVotingSession}
+                  isDarkMode={isDarkMode}
+                  toggleTheme={toggleTheme}
                 />
               ) : (
                 <Navigate to="/admin" replace />
               )
             } 
           />
-          
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

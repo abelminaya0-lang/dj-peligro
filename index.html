@@ -10,12 +10,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --bg-primary: #F2F2F2;
+        --text-primary: #0D0D0D;
+        --card-bg: #FFFFFF;
+        --border-color: #E5E5E5;
+      }
+      .dark-mode {
+        --bg-primary: #0D0D0D;
+        --text-primary: #F2F2F2;
+        --card-bg: #1A1A1A;
+        --border-color: #2A2A2A;
+      }
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #F2F2F2;
-        color: #0D0D0D;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
         overflow-x: hidden;
         margin: 0;
+        transition: background-color 0.4s ease, color 0.4s ease;
       }
       #root {
         min-height: 100vh;
@@ -24,7 +37,7 @@
         width: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #F2F2F2;
+        background: var(--bg-primary);
       }
       ::-webkit-scrollbar-thumb {
         background: #D1D1D1;
@@ -43,6 +56,10 @@
       .bg-yellow-brand { background-color: #F2CB05; }
       .text-yellow-brand { color: #F2CB05; }
       .border-yellow-brand { border-color: #F2CB05; }
+      
+      .theme-transition {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     </style>
 <script type="importmap">
 {
