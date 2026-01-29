@@ -58,7 +58,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   return (
     <div className="max-w-screen-md mx-auto px-4 flex flex-col min-h-screen theme-transition bg-[#0D0D0D] pt-0">
-      {/* Botón Flotante */}
+      {/* Botón Flotante de Tema */}
       <button 
         onClick={toggleTheme}
         className="fixed top-3 right-3 z-[100] p-3 rounded-full bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-2xl active:scale-90 transition-all theme-transition"
@@ -66,7 +66,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         {isDarkMode ? <Sun className="w-5 h-5 text-[#F2CB05]" /> : <Moon className="w-5 h-5 text-[#594302]" />}
       </button>
 
-      {/* HEADER ULTRA COMPACTO */}
+      {/* HEADER COMPACTO PARA CELULAR */}
       <header className="text-center mb-2 flex flex-col items-center pt-0 mt-[-15px] md:mt-[-40px] animate-in fade-in duration-1000">
         <div className="relative group w-full flex justify-center pt-0 overflow-hidden">
           <div className="absolute inset-0 bg-[#F2CB05] blur-[70px] md:blur-[140px] opacity-30 md:opacity-40 rounded-full animate-pulse"></div>
@@ -77,10 +77,10 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
           />
         </div>
         
-        {/* Banner de Acción */}
+        {/* Banner de Acción principal */}
         <div className="relative z-30 mt-[-40px] md:mt-[-180px] w-full flex justify-center px-4">
-          <div className="inline-block bg-white text-[#0D0D0D] px-4 py-2.5 md:px-14 md:py-8 transform -skew-x-12 shadow-2xl border-r-[6px] border-b-[6px] md:border-r-[20px] md:border-b-[20px] border-[#F2CB05]">
-            <h2 className="text-[13px] md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">
+          <div className="inline-block bg-white text-[#0D0D0D] px-4 py-3 md:px-14 md:py-8 transform -skew-x-12 shadow-2xl border-r-[8px] border-b-[8px] md:border-r-[20px] md:border-b-[20px] border-[#F2CB05]">
+            <h2 className="text-base md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">
               La próxima canción la eliges tú
             </h2>
           </div>
@@ -91,12 +91,12 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
           <div className="flex flex-col items-center gap-1.5 pt-4 md:pt-10 animate-in zoom-in duration-500">
             {!isClosed && (
               <div className="flex items-center gap-1 bg-[#F2CB05] text-[#0D0D0D] px-2 py-0.5 rounded-md font-black text-[7px] md:text-[8px] tracking-[0.3em] uppercase animate-pulse">
-                • VOTACIÓN EN VIVO (6:00)
+                • VOTACIÓN ACTIVA (6 MINUTOS)
               </div>
             )}
-            <div className={`inline-flex items-center gap-2.5 px-6 py-2.5 rounded-2xl border-2 shadow-2xl backdrop-blur-xl theme-transition ${isClosed ? 'bg-red-500 text-white border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white'}`}>
-              {isClosed ? <AlarmClockOff className="w-4 h-4" /> : <Timer className="w-4 h-4 animate-spin-slow text-[#F2CB05]" />}
-              <span className="text-xl md:text-4xl font-black tracking-[0.2em] tabular-nums leading-none italic">
+            <div className={`inline-flex items-center gap-2.5 px-6 py-2.5 rounded-2xl border-2 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl theme-transition ${isClosed ? 'bg-red-500 text-white border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white'}`}>
+              {isClosed ? <AlarmClockOff className="w-5 h-5" /> : <Timer className="w-5 h-5 animate-spin-slow text-[#F2CB05]" />}
+              <span className="text-2xl md:text-4xl font-black tracking-[0.2em] tabular-nums leading-none italic">
                 {isClosed ? 'CERRADO' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
               </span>
             </div>
@@ -104,33 +104,47 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
+      {/* CONTENIDO PRINCIPAL - LAS LISTAS SIEMPRE PRESENTES */}
       <main className="flex-grow space-y-4 animate-in slide-in-from-bottom-8 duration-1000 pt-2">
-        {/* INVITACIÓN A INSTAGRAM POST-VOTO */}
+        
+        {/* PANEL DE AGRADECIMIENTO E INSTAGRAM (SÓLO SI VOTÓ) */}
         {hasVoted && (
-          <div className="flex flex-col items-center animate-in fade-in zoom-in duration-700 mb-6 px-2">
-            <div className="w-full bg-gradient-to-r from-[#1A1A1A] to-[#0D0D0D] border-2 border-[#F2CB05] p-5 rounded-[2rem] text-center shadow-[0_20px_50px_-10px_rgba(242,203,5,0.3)] relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-2 opacity-5">
-                <Heart className="w-20 h-20 text-[#F2CB05]" />
+          <div className="flex flex-col items-center animate-in fade-in zoom-in duration-700 mb-8 px-2">
+            <div className="w-full bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] border-2 border-[#F2CB05] p-6 rounded-[2.5rem] text-center shadow-[0_25px_60px_-15px_rgba(242,203,5,0.4)] relative overflow-hidden group">
+              <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                <Heart className="w-40 h-40 text-[#F2CB05] fill-current" />
               </div>
-              <h3 className="text-[#F2CB05] font-black italic text-xl md:text-2xl uppercase tracking-tighter mb-1">¡GRACIAS POR TU VOTO!</h3>
-              <p className="text-neutral-400 font-bold text-[9px] uppercase tracking-widest mb-4">Mira quién va ganando en mi Instagram oficial</p>
               
-              <a 
-                href="https://www.instagram.com/djpeligroperu" 
-                target="_blank" 
-                className="inline-flex items-center gap-3 bg-white text-[#0D0D0D] px-8 py-3.5 rounded-xl font-black text-xs uppercase italic tracking-widest hover:bg-[#F2CB05] transition-all shadow-xl active:scale-95 group"
-              >
-                <Instagram className="w-5 h-5 text-[#ee2a7b]" /> VER RESULTADOS <ExternalLink className="w-4 h-4 opacity-50" />
-              </a>
+              <div className="relative z-10 space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-[#F2CB05] font-black italic text-2xl md:text-3xl uppercase tracking-tighter leading-none">
+                    ¡GRACIAS POR TU VOTO!
+                  </h3>
+                  <p className="text-white font-black text-[10px] md:text-xs uppercase tracking-widest leading-relaxed">
+                    MIRA AQUÍ QUIÉN ESTÁ GANANDO.<br/>LOS RESULTADOS ESTÁN EN MI INSTAGRAM OFICIAL
+                  </p>
+                </div>
+                
+                <a 
+                  href="https://www.instagram.com/djpeligroperu" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-4 bg-white text-[#0D0D0D] px-10 py-4 rounded-2xl font-black text-xs md:text-sm uppercase italic tracking-widest hover:bg-[#F2CB05] transition-all shadow-[0_15px_35px_rgba(255,255,255,0.2)] active:scale-95 group"
+                >
+                  <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-1.5 rounded-lg">
+                    <Instagram className="w-5 h-5 text-white" />
+                  </div>
+                  IR A INSTAGRAM PELIGRO <ExternalLink className="w-4 h-4 opacity-40 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </div>
             </div>
           </div>
         )}
 
         {mode === 'songs' ? (
-          <div className="space-y-2.5 pb-10">
-            <p className="text-center text-neutral-600 font-black uppercase text-[9px] tracking-[0.4em] mb-1 opacity-50">
-              {hasVoted ? 'LISTA DE CANCIONES (TU VOTO REGISTRADO):' : 'TOCA PARA ELEGIR EL PRÓXIMO HIT:'}
+          <div className="space-y-3 pb-12">
+            <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-1 opacity-50">
+              {hasVoted ? 'TU VOTO ESTÁ REGISTRADO EN ESTA LISTA:' : 'TOCA PARA ELEGIR LA SIGUIENTE:'}
             </p>
             {songs.map(song => (
               <SongCard 
@@ -143,35 +157,39 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3.5 pb-10">
-            <p className="text-center text-neutral-600 font-black uppercase text-[9px] tracking-[0.4em] mb-1 opacity-50">
-              {hasVoted ? 'GÉNEROS MUSICALES REGISTRADOS:' : '¿QUÉ GÉNERO QUIERES ESCUCHAR?' }
+          <div className="grid grid-cols-1 gap-4 pb-12">
+            <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-1 opacity-50">
+              {hasVoted ? 'GÉNERO ELEGIDO REGISTRADO:' : '¿QUÉ GÉNERO QUIERES ESCUCHAR?' }
             </p>
             {genres.map(g => (
               <button 
                 key={g} 
                 onClick={() => handleVoteAction(g)}
                 disabled={isClosed || hasVoted}
-                className={`group relative flex items-center justify-between p-6 md:p-10 rounded-[2rem] border-2 transition-all shadow-xl active:scale-95 theme-transition overflow-hidden ${
+                className={`group relative flex items-center justify-between p-7 md:p-10 rounded-[2.5rem] border-2 transition-all shadow-2xl active:scale-95 theme-transition overflow-hidden ${
                   hasVoted || isClosed 
-                  ? 'bg-[#121212] border-transparent opacity-60' 
+                  ? 'bg-[#121212] border-transparent opacity-60 grayscale' 
                   : 'bg-[var(--card-bg)] border-transparent hover:border-[#F2CB05]'
                 }`}
               >
-                <div className="flex items-center gap-5 md:gap-8 relative z-10">
-                  <div className={`p-4 md:p-6 rounded-2xl transition-all duration-500 shadow-xl ${hasVoted || isClosed ? 'bg-neutral-800' : 'bg-[#F2CB05] group-hover:rotate-12 shadow-[#F2CB05]/30'}`}>
+                <div className="flex items-center gap-6 relative z-10">
+                  <div className={`p-5 rounded-2xl transition-all duration-500 shadow-xl ${hasVoted || isClosed ? 'bg-neutral-800 shadow-none' : 'bg-[#F2CB05] group-hover:rotate-12 shadow-[#F2CB05]/30'}`}>
                     {getGenreIcon(g)}
                   </div>
                   <span className={`text-2xl md:text-5xl font-black italic uppercase tracking-tighter transition-colors ${hasVoted || isClosed ? 'text-neutral-500' : 'group-hover:text-[#F2B705] text-white'}`}>{g}</span>
                 </div>
-                <div className={`font-black px-6 py-4 md:px-10 md:py-6 rounded-xl md:rounded-2xl italic text-[10px] md:text-sm transition-all flex items-center gap-2 ${
+                
+                {/* Botón de Like integrado */}
+                <div className={`font-black px-8 py-5 rounded-2xl italic text-xs md:text-sm transition-all flex items-center gap-3 ${
                   hasVoted || isClosed 
                   ? 'bg-transparent text-neutral-600 border border-neutral-800' 
                   : 'bg-[#F2CB05] text-[#0D0D0D] md:opacity-0 md:group-hover:opacity-100'
                 }`}>
                   {hasVoted || isClosed ? (
-                    <>REGISTRADO <Heart className="w-3 h-3 md:w-5 md:h-5 fill-current" /></>
-                  ) : 'VOTAR'}
+                    <>REGISTRADO <Heart className="w-5 h-5 fill-current text-red-500" /></>
+                  ) : (
+                    <>VOTAR <Music className="w-4 h-4" /></>
+                  )}
                 </div>
               </button>
             ))}
@@ -179,36 +197,37 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </main>
 
-      {/* FOOTER */}
-      <footer className="mt-10 py-16 text-center border-t border-[var(--border-color)] space-y-10 theme-transition">
+      {/* FOOTER ESPACIADO AL FINAL */}
+      <footer className="mt-12 py-20 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
         <div className="flex flex-col items-center">
-          <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.5em] mb-3">PANEL EXCLUSIVO • DJ PELIGRO</p>
-          <div className="flex gap-1.5">
-            <div className="w-1 h-1 bg-[#F2CB05] rounded-full"></div>
-            <div className="w-12 h-1 bg-[#F2CB05] rounded-full"></div>
-            <div className="w-1 h-1 bg-[#F2CB05] rounded-full"></div>
+          <p className="text-neutral-500 text-[10px] font-black uppercase tracking-[0.6em] mb-4">PANEL EXCLUSIVO • DJ PELIGRO</p>
+          <div className="flex gap-2">
+            <div className="w-2 h-2 bg-[#F2CB05] rounded-full"></div>
+            <div className="w-20 h-2 bg-[#F2CB05] rounded-full"></div>
+            <div className="w-2 h-2 bg-[#F2CB05] rounded-full"></div>
           </div>
         </div>
 
-        <div className="flex justify-center items-center gap-10">
+        {/* REDES SOCIALES OFICIALES */}
+        <div className="flex justify-center items-center gap-14">
           <a href="https://www.instagram.com/djpeligroperu" target="_blank" className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300">
-            <Instagram className="w-8 h-8" />
+            <Instagram className="w-10 h-10" />
           </a>
           <a href="https://www.tiktok.com/@djpeligro" target="_blank" className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
               <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
             </svg>
           </a>
         </div>
 
         <div className="flex justify-center opacity-10">
-          <Link to="/admin" className="p-4">
-            <img src={RAYO_LOGO} alt="DJ" className="w-10 h-10 object-contain" />
+          <Link to="/admin" className="p-4 hover:opacity-100 transition-opacity">
+            <img src={RAYO_LOGO} alt="DJ" className="w-12 h-12 object-contain" />
           </Link>
         </div>
 
-        <div className="pt-16 pb-6">
-          <p className="text-[7px] text-neutral-800 font-black uppercase tracking-[0.5em]">
+        <div className="pt-24 pb-12">
+          <p className="text-[9px] text-neutral-800 font-black uppercase tracking-[0.5em]">
             &copy; 2024 PELIGRO EDITION • VOTE FLOW SYSTEM
           </p>
         </div>
