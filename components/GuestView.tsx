@@ -4,6 +4,7 @@ import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
 import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, Music, Mic2, Check, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PostVoteModal from './PostVoteModal';
 
 interface GuestViewProps {
   mode: VotingMode;
@@ -58,6 +59,9 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   return (
     <div className="max-w-screen-md mx-auto px-4 flex flex-col min-h-screen theme-transition bg-[#0D0D0D] pt-0">
+      {/* PANTALLA POST-VOTO (INSTAGRAM REDIRECT) */}
+      <PostVoteModal isVisible={hasVoted} />
+
       {/* Botón Flotante de Tema */}
       <button 
         onClick={toggleTheme}
@@ -104,47 +108,12 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </header>
 
-      {/* CONTENIDO PRINCIPAL - LAS LISTAS SIEMPRE PRESENTES */}
+      {/* CONTENIDO PRINCIPAL */}
       <main className="flex-grow space-y-4 animate-in slide-in-from-bottom-8 duration-1000 pt-2">
-        
-        {/* PANEL DE AGRADECIMIENTO E INSTAGRAM (SÓLO SI VOTÓ) */}
-        {hasVoted && (
-          <div className="flex flex-col items-center animate-in fade-in zoom-in duration-700 mb-8 px-2">
-            <div className="w-full bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] border-2 border-[#F2CB05] p-6 rounded-[2.5rem] text-center shadow-[0_25px_60px_-15px_rgba(242,203,5,0.4)] relative overflow-hidden group">
-              <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                <Heart className="w-40 h-40 text-[#F2CB05] fill-current" />
-              </div>
-              
-              <div className="relative z-10 space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-[#F2CB05] font-black italic text-2xl md:text-3xl uppercase tracking-tighter leading-none">
-                    ¡GRACIAS POR TU VOTO!
-                  </h3>
-                  <p className="text-white font-black text-[10px] md:text-xs uppercase tracking-widest leading-relaxed">
-                    MIRA AQUÍ QUIÉN ESTÁ GANANDO.<br/>LOS RESULTADOS ESTÁN EN MI INSTAGRAM OFICIAL
-                  </p>
-                </div>
-                
-                <a 
-                  href="https://www.instagram.com/djpeligroperu" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-4 bg-white text-[#0D0D0D] px-10 py-4 rounded-2xl font-black text-xs md:text-sm uppercase italic tracking-widest hover:bg-[#F2CB05] transition-all shadow-[0_15px_35px_rgba(255,255,255,0.2)] active:scale-95 group"
-                >
-                  <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-1.5 rounded-lg">
-                    <Instagram className="w-5 h-5 text-white" />
-                  </div>
-                  IR A INSTAGRAM PELIGRO <ExternalLink className="w-4 h-4 opacity-40 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
-
         {mode === 'songs' ? (
           <div className="space-y-3 pb-12">
             <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-1 opacity-50">
-              {hasVoted ? 'TU VOTO ESTÁ REGISTRADO EN ESTA LISTA:' : 'TOCA PARA ELEGIR LA SIGUIENTE:'}
+              TOCA PARA ELEGIR LA SIGUIENTE:
             </p>
             {songs.map(song => (
               <SongCard 
@@ -159,7 +128,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         ) : (
           <div className="grid grid-cols-1 gap-4 pb-12">
             <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-1 opacity-50">
-              {hasVoted ? 'GÉNERO ELEGIDO REGISTRADO:' : '¿QUÉ GÉNERO QUIERES ESCUCHAR?' }
+              ¿QUÉ GÉNERO QUIERES ESCUCHAR?
             </p>
             {genres.map(g => (
               <button 
@@ -179,7 +148,6 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
                   <span className={`text-2xl md:text-5xl font-black italic uppercase tracking-tighter transition-colors ${hasVoted || isClosed ? 'text-neutral-500' : 'group-hover:text-[#F2B705] text-white'}`}>{g}</span>
                 </div>
                 
-                {/* Botón de Like integrado */}
                 <div className={`font-black px-8 py-5 rounded-2xl italic text-xs md:text-sm transition-all flex items-center gap-3 ${
                   hasVoted || isClosed 
                   ? 'bg-transparent text-neutral-600 border border-neutral-800' 
@@ -197,7 +165,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </main>
 
-      {/* FOOTER ESPACIADO AL FINAL */}
+      {/* FOOTER */}
       <footer className="mt-12 py-20 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
         <div className="flex flex-col items-center">
           <p className="text-neutral-500 text-[10px] font-black uppercase tracking-[0.6em] mb-4">PANEL EXCLUSIVO • DJ PELIGRO</p>
@@ -208,7 +176,6 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
           </div>
         </div>
 
-        {/* REDES SOCIALES OFICIALES */}
         <div className="flex justify-center items-center gap-14">
           <a href="https://www.instagram.com/djpeligroperu" target="_blank" className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300">
             <Instagram className="w-10 h-10" />
