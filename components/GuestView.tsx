@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, ShieldCheck, Music, Mic2 } from 'lucide-react';
+import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, Music, Mic2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface GuestViewProps {
@@ -20,8 +20,9 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
   const [hasVoted, setHasVoted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
-  // Logo de DJ Peligro puro
+  // Logos de DJ Peligro
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
+  const RAYO_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722452/LOGO_RAYO_qd5arr.png";
 
   useEffect(() => {
     setHasVoted(localStorage.getItem('has_voted') === 'true');
@@ -143,35 +144,34 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </main>
 
-      {/* FOOTER - AL RAS Y ESTILIZADO */}
-      <footer className="mt-4 py-8 text-center border-t border-[var(--border-color)] space-y-5 theme-transition">
+      {/* FOOTER - AL RAS CON EL RAYO OCULTO Y ESPACIO LARGO */}
+      <footer className="mt-20 py-16 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
         <div className="flex flex-col items-center">
-          <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.6em] mb-2">SISTEMA EXCLUSIVO • VOTE FLOW</p>
+          <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.6em] mb-3">SISTEMA EXCLUSIVO • VOTE FLOW</p>
           <div className="flex gap-1">
             <div className="w-1 h-1 bg-[#F2CB05] rounded-full"></div>
-            <div className="w-10 h-1 bg-[#F2CB05] rounded-full"></div>
+            <div className="w-12 h-1 bg-[#F2CB05] rounded-full"></div>
             <div className="w-1 h-1 bg-[#F2CB05] rounded-full"></div>
           </div>
         </div>
 
-        <div className="flex justify-center">
+        {/* El Rayo Oculto - Botón de acceso al Panel */}
+        <div className="flex justify-center group">
           <Link 
             to="/admin" 
-            className="group flex items-center gap-3 bg-[var(--card-bg)] hover:bg-[#F2CB05] border border-[var(--border-color)] hover:border-[#F2CB05] px-8 py-3 rounded-2xl transition-all shadow-xl hover:shadow-[#F2CB05]/30 active:scale-95"
+            className="relative p-4 grayscale opacity-10 hover:grayscale-0 hover:opacity-100 transition-all duration-500 transform hover:scale-125 hover:rotate-12"
           >
-            <div className="bg-[#F2CB05] group-hover:bg-[#0D0D0D] p-2 rounded-lg transition-colors">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#0D0D0D] group-hover:text-[#F2CB05]" />
-            </div>
-            <div className="text-left">
-              <p className="text-[7px] font-black text-neutral-500 group-hover:text-[#0D0D0D]/70 uppercase tracking-widest leading-none">PANEL</p>
-              <p className="text-[11px] font-black text-white group-hover:text-[#0D0D0D] uppercase italic tracking-tighter leading-none">DJ PELIGRO</p>
-            </div>
+            <div className="absolute inset-0 bg-[#F2CB05] blur-2xl opacity-0 group-hover:opacity-30 transition-opacity rounded-full"></div>
+            <img src={RAYO_LOGO} alt="DJ Access" className="w-12 h-12 object-contain relative z-10" />
           </Link>
         </div>
 
-        <p className="text-[7px] text-neutral-800 font-bold uppercase tracking-[0.4em]">
-          Copyright &copy; 2024 • Vote Flow • Peligro Edition
-        </p>
+        {/* Espacio largo final */}
+        <div className="pt-20">
+          <p className="text-[7px] text-neutral-800 font-bold uppercase tracking-[0.4em]">
+            Copyright &copy; 2024 • Vote Flow • Peligro Edition
+          </p>
+        </div>
       </footer>
     </div>
   );
