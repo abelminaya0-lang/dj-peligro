@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, Music, Mic2 } from 'lucide-react';
+import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, Music, Mic2, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface GuestViewProps {
@@ -42,7 +42,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
       onVote(id);
       setHasVoted(true);
       localStorage.setItem('has_voted', 'true');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Eliminamos el scroll automático para que el usuario vea su voto registrado en la lista
     }
   };
 
@@ -100,44 +100,64 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </header>
 
-      {/* CONTENIDO - COMPACTO Y SIN HUECOS */}
+      {/* CONTENIDO - SIEMPRE VISIBLE SEGÚN CONFIGURACIÓN DEL DJ */}
       <main className="flex-grow space-y-4 animate-in slide-in-from-bottom-8 duration-1000 pt-2">
-        {hasVoted ? (
-          <div className="bg-[var(--card-bg)] border-4 border-[#F2CB05] rounded-[3rem] p-8 text-center shadow-[0_30px_80px_-15px_rgba(242,203,5,0.4)] relative overflow-hidden theme-transition">
-            <Heart className="w-14 h-14 text-[#F2CB05] mx-auto mb-4 animate-bounce fill-current" />
-            <h3 className="text-3xl font-black italic mb-2 tracking-tighter text-white uppercase leading-none">¡TU VOTO ES LEY!</h3>
-            <p className="text-neutral-500 font-black mb-6 uppercase text-[9px] tracking-[0.4em] max-w-xs mx-auto">La pista va a detonar.</p>
-            <a 
-              href="https://www.instagram.com/djpeligroperu" 
-              target="_blank" 
-              className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white font-black py-4 px-10 rounded-2xl inline-flex items-center gap-3 shadow-2xl hover:scale-105 active:scale-95 transition-all text-xs tracking-widest uppercase italic"
-            >
-              <Instagram className="w-5 h-5" /> RESULTADOS EN VIVO
-            </a>
+        {/* Indicador sutil de que ya votó si corresponde */}
+        {hasVoted && (
+          <div className="flex justify-center animate-in fade-in zoom-in duration-500 mb-2">
+            <div className="bg-[#F2CB05]/10 border border-[#F2CB05]/30 px-4 py-2 rounded-xl flex items-center gap-2">
+              <Heart className="w-3 h-3 text-[#F2CB05] fill-current" />
+              <span className="text-[10px] font-black text-[#F2CB05] uppercase tracking-[0.2em]">Voto registrado correctamente</span>
+            </div>
           </div>
-        ) : mode === 'songs' ? (
+        )}
+
+        {mode === 'songs' ? (
           <div className="space-y-2 pb-6">
-            <p className="text-center text-neutral-600 font-black uppercase text-[9px] tracking-[0.5em] mb-1 opacity-40">TOCA PARA VOTAR:</p>
+            <p className="text-center text-neutral-600 font-black uppercase text-[9px] tracking-[0.5em] mb-1 opacity-40">
+              {hasVoted ? 'TU ELECCIÓN HA SIDO REGISTRADA:' : 'TOCA PARA VOTAR:'}
+            </p>
             {songs.map(song => (
-              <SongCard key={song.id} song={song} onClick={() => handleVoteAction(song.id)} disabled={isClosed} isDarkMode={isDarkMode} />
+              <SongCard 
+                key={song.id} 
+                song={song} 
+                onClick={() => handleVoteAction(song.id)} 
+                disabled={isClosed || hasVoted} 
+                isDarkMode={isDarkMode} 
+              />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 pb-6">
+            <p className="text-center text-neutral-600 font-black uppercase text-[9px] tracking-[0.5em] mb-1 opacity-40">
+              {hasVoted ? 'TU GÉNERO HA SIDO REGISTRADO:' : 'TOCA PARA VOTAR EL GÉNERO:'}
+            </p>
             {genres.map(g => (
               <button 
                 key={g} 
                 onClick={() => handleVoteAction(g)}
-                disabled={isClosed}
-                className="group relative flex items-center justify-between bg-[var(--card-bg)] p-6 md:p-10 rounded-[2rem] border-2 border-transparent hover:border-[#F2CB05] transition-all shadow-xl active:scale-95 disabled:opacity-50 theme-transition overflow-hidden"
+                disabled={isClosed || hasVoted}
+                className={`group relative flex items-center justify-between p-6 md:p-10 rounded-[2rem] border-2 transition-all shadow-xl active:scale-95 theme-transition overflow-hidden ${
+                  hasVoted || isClosed 
+                  ? 'bg-[#151515] border-transparent opacity-60' 
+                  : 'bg-[var(--card-bg)] border-transparent hover:border-[#F2CB05]'
+                }`}
               >
                 <div className="flex items-center gap-6 relative z-10">
-                  <div className="bg-[#F2CB05] p-4 rounded-xl group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-[#F2CB05]/20">
+                  <div className={`p-4 rounded-xl transition-all duration-500 shadow-lg ${hasVoted || isClosed ? 'bg-neutral-800 shadow-none' : 'bg-[#F2CB05] group-hover:rotate-12 shadow-[#F2CB05]/20'}`}>
                     {getGenreIcon(g)}
                   </div>
-                  <span className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter group-hover:text-[#F2B705] transition-colors">{g}</span>
+                  <span className={`text-3xl md:text-5xl font-black italic uppercase tracking-tighter transition-colors ${hasVoted || isClosed ? 'text-neutral-500' : 'group-hover:text-[#F2B705]'}`}>{g}</span>
                 </div>
-                <div className="bg-[#F2CB05] text-[#0D0D0D] font-black px-8 py-4 rounded-2xl opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 italic text-sm">VOTAR</div>
+                <div className={`font-black px-8 py-4 rounded-2xl italic text-sm transition-all flex items-center gap-2 ${
+                  hasVoted || isClosed 
+                  ? 'bg-transparent text-neutral-600 border border-neutral-800' 
+                  : 'bg-[#F2CB05] text-[#0D0D0D] opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0'
+                }`}>
+                  {hasVoted || isClosed ? (
+                    <>REGISTRADO <Check className="w-4 h-4" /></>
+                  ) : 'VOTAR'}
+                </div>
               </button>
             ))}
           </div>
@@ -146,7 +166,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
       {/* FOOTER - AL RAS CON EL RAYO OCULTO Y ESPACIO LARGO */}
       <footer className="mt-20 py-16 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
-        {/* Separador de Marca Actualizado */}
+        {/* Separador de Marca */}
         <div className="flex flex-col items-center">
           <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.6em] mb-3">PANEL EXCLUSIVO • DJ PELIGRO</p>
           <div className="flex gap-1">
