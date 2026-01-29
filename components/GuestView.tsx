@@ -146,9 +146,9 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
       {/* FOOTER - AL RAS CON EL RAYO OCULTO Y ESPACIO LARGO */}
       <footer className="mt-20 py-16 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
-        {/* Sistema Exclusivo Separator */}
+        {/* Separador de Marca Actualizado */}
         <div className="flex flex-col items-center">
-          <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.6em] mb-3">SISTEMA EXCLUSIVO • VOTE FLOW</p>
+          <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.6em] mb-3">PANEL EXCLUSIVO • DJ PELIGRO</p>
           <div className="flex gap-1">
             <div className="w-1 h-1 bg-[#F2CB05] rounded-full"></div>
             <div className="w-12 h-1 bg-[#F2CB05] rounded-full"></div>

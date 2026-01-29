@@ -78,7 +78,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
         <div className="flex items-center gap-5">
           <img src={DJ_LOGO} className="w-20 h-20 object-contain drop-shadow-[0_5px_15px_rgba(242,203,5,0.3)]" alt="DJ Peligro" />
           <div>
-            <h1 className="text-3xl font-black italic tracking-tighter text-[var(--text-primary)] leading-tight uppercase">SISTEMA <span className="text-[#F2B705]">VOTE FLOW</span></h1>
+            <h1 className="text-3xl font-black italic tracking-tighter text-[var(--text-primary)] leading-tight uppercase">PANEL <span className="text-[#F2B705]">DJ PELIGRO</span></h1>
             <p className="text-neutral-500 text-[10px] font-black uppercase tracking-[0.4em]">Master Control • Live</p>
           </div>
         </div>
