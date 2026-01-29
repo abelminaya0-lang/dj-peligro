@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Song } from '../types';
 import SongCard from './SongCard';
 import VoteModal from './VoteModal';
-import { Music, CheckCircle, Lock, ChevronRight, ListMusic, Info } from 'lucide-react';
+import { Music, CheckCircle, Lock, ChevronRight, ListMusic, Info, Instagram } from 'lucide-react';
 
 interface GuestViewProps {
   songs: Song[];
@@ -18,10 +18,6 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
   useEffect(() => {
     const voted = localStorage.getItem('has_voted') === 'true';
     setHasVoted(voted);
-    // Si ya votó anteriormente y refresca, le mostramos el mensaje de confirmación primero
-    if (voted) {
-      setShowSuccessScreen(true);
-    }
   }, []);
 
   const handleVoteSubmit = (name: string, whatsapp?: string) => {
@@ -40,25 +36,43 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
   if (hasVoted && showSuccessScreen) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center bg-black">
-        <div className="max-w-md w-full bg-neutral-900 rounded-[2.5rem] p-12 border border-neutral-800 shadow-2xl animate-in fade-in zoom-in duration-500">
+        <div className="max-w-md w-full bg-neutral-900 rounded-[2.5rem] p-10 md:p-12 border border-neutral-800 shadow-2xl animate-in fade-in zoom-in duration-500">
           <div className="flex justify-center mb-8 relative">
             <div className="absolute inset-0 bg-green-500/20 blur-3xl rounded-full"></div>
-            <CheckCircle className="w-24 h-24 text-green-500 relative z-10" />
+            <CheckCircle className="w-20 h-20 text-green-500 relative z-10" />
           </div>
-          <h1 className="text-4xl font-black mb-4 tracking-tighter">¡Voto Registrado!</h1>
-          <p className="text-neutral-400 text-lg leading-relaxed font-medium mb-10">
-            Tu participación ha sido enviada con éxito. Ya no puedes volver a votar en este evento.
-          </p>
+          
+          <h1 className="text-4xl font-black mb-4 tracking-tighter">¡Voto Recibido!</h1>
+          
+          <div className="bg-black/30 rounded-3xl p-6 mb-8 border border-neutral-800/50">
+            <p className="text-neutral-300 text-lg leading-relaxed font-bold mb-6">
+              ¿Quieres ver los resultados finales y quién va ganando? 📊
+            </p>
+            
+            <a 
+              href="https://www.instagram.com/djpeligroperu?igsh=MWQ1NmhhcjFubXFvbg=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white font-black py-4 rounded-2xl flex items-center justify-center space-x-3 transition-all hover:scale-[1.02] active:scale-95 shadow-xl mb-4"
+            >
+              <Instagram className="w-6 h-6" />
+              <span>VER RESULTADOS EN IG</span>
+            </a>
+            
+            <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest">
+              Sígueme en las historias para el conteo en vivo
+            </p>
+          </div>
           
           <button 
             onClick={handleViewList}
-            className="w-full bg-white text-black font-black py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all hover:bg-neutral-200 active:scale-95 mb-6 shadow-xl"
+            className="w-full bg-neutral-800 text-neutral-400 font-black py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all hover:bg-neutral-700 hover:text-white active:scale-95 mb-6"
           >
             <ListMusic className="w-5 h-5" />
-            <span>Ver lista de canciones</span>
+            <span>Volver a la lista</span>
           </button>
 
-          <div className="pt-8 border-t border-neutral-800">
+          <div className="pt-6 border-t border-neutral-800">
              <a 
               href="#/admin" 
               className="inline-flex items-center space-x-2 text-neutral-600 hover:text-green-500 transition-colors text-xs font-black uppercase tracking-widest"
@@ -82,11 +96,22 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
           🎧 Escoge la <br/><span className="text-green-500">próxima canción</span>
         </h1>
         {hasVoted ? (
-          <div className="bg-neutral-900/50 border border-neutral-800 p-4 rounded-2xl inline-flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-            <Info className="w-5 h-5 text-green-500" />
-            <p className="text-neutral-300 text-sm font-bold">
-              Ya has emitido tu voto. <span className="text-green-500">¡Gracias por participar!</span>
-            </p>
+          <div className="bg-neutral-900/50 border border-neutral-800 p-4 rounded-2xl inline-flex flex-col md:flex-row items-center gap-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center gap-2">
+              <Info className="w-5 h-5 text-green-500" />
+              <p className="text-neutral-300 text-sm font-bold">
+                Ya has votado. <span className="text-green-500">¡Gracias!</span>
+              </p>
+            </div>
+            <a 
+              href="https://www.instagram.com/djpeligroperu?igsh=MWQ1NmhhcjFubXFvbg=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-black bg-neutral-800 hover:bg-neutral-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2"
+            >
+              <Instagram className="w-3 h-3" />
+              VER RESULTADOS
+            </a>
           </div>
         ) : (
           <p className="text-neutral-400 text-xl font-medium max-w-sm mx-auto">

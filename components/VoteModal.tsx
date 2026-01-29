@@ -15,9 +15,8 @@ const VoteModal: React.FC<VoteModalProps> = ({ song, onClose, onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
-      onSubmit(name.trim(), whatsapp.trim());
-    }
+    // Enviamos el voto incluso si los campos están vacíos
+    onSubmit(name.trim() || 'Anónimo', whatsapp.trim());
   };
 
   return (
@@ -46,16 +45,15 @@ const VoteModal: React.FC<VoteModalProps> = ({ song, onClose, onSubmit }) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">
-                Tu Nombre *
+                Tu Nombre (Opcional)
               </label>
               <input
                 id="name"
                 type="text"
-                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej: Juan Pérez"
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all placeholder:text-neutral-600"
+                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all placeholder:text-neutral-600 font-medium"
               />
             </div>
             <div>
@@ -68,19 +66,22 @@ const VoteModal: React.FC<VoteModalProps> = ({ song, onClose, onSubmit }) => {
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
                 placeholder="+34 123 456 789"
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all placeholder:text-neutral-600"
+                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all placeholder:text-neutral-600 font-medium"
               />
             </div>
 
             <button
               type="submit"
-              disabled={!name.trim()}
-              className="w-full bg-green-500 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-4 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] shadow-lg shadow-green-500/20"
+              className="w-full bg-green-500 hover:bg-green-400 text-black font-black py-4 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] shadow-lg shadow-green-500/20"
             >
-              <span>Enviar Voto</span>
+              <span>{name.trim() ? 'Enviar Voto' : 'Votar de forma anónima'}</span>
               <Send className="w-5 h-5" />
             </button>
           </form>
+          
+          <p className="text-center text-[10px] text-neutral-600 mt-4 font-bold uppercase tracking-widest">
+            Puedes votar sin completar tus datos
+          </p>
         </div>
       </div>
     </div>
