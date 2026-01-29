@@ -21,6 +21,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
   votingEndsAt, onStartVoting, onStopVoting 
 }) => {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769720682/avatars-000658755773-nboqus-t500x500-removebg-preview_r7cgsp.png";
 
   useEffect(() => {
     if (!votingEndsAt) {
@@ -67,57 +68,61 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
   const isVotingActive = votingEndsAt && timeLeft !== null && timeLeft > 0;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 animate-in fade-in duration-700">
+    <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 animate-in fade-in duration-700 bg-[#F2F2F2]">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
-        <div>
-          <h1 className="text-5xl font-black tracking-tighter flex items-center gap-4">
-            <Activity className="text-green-500 w-10 h-10" />
-            PANEL <span className="text-green-500">DJ</span>
-          </h1>
-          <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs mt-2">Control de votaciones en tiempo real</p>
+        <div className="flex items-center gap-6">
+          <div className="w-16 h-16 bg-[#F2CB05] rounded-2xl flex items-center justify-center shadow-lg p-2 overflow-hidden">
+            <img src={DJ_LOGO} alt="DJ Peligro" className="w-full h-full object-contain" />
+          </div>
+          <div>
+            <h1 className="text-5xl font-black tracking-tighter flex items-center gap-4 text-[#0D0D0D]">
+              PANEL <span className="text-[#F2B705]">DJ</span>
+            </h1>
+            <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs mt-1 italic">Control maestro de la pista</p>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link 
             to="/"
-            className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white px-6 py-4 rounded-2xl border border-neutral-800 transition-all font-bold text-sm"
+            className="flex items-center space-x-2 bg-white hover:bg-neutral-50 text-[#0D0D0D] px-6 py-4 rounded-2xl border border-neutral-200 transition-all font-bold text-sm shadow-sm"
           >
-            <Home className="w-4 h-4" />
-            <span className="hidden sm:inline">Ver Votación</span>
+            <Home className="w-4 h-4 text-[#F2CB05]" />
+            <span className="hidden sm:inline">Ver como Público</span>
           </Link>
           <button 
             onClick={() => { if(confirm('¿Reiniciar todos los votos y el temporizador?')) onReset(); }}
-            className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white px-6 py-4 rounded-2xl border border-neutral-800 transition-all font-bold text-sm"
+            className="flex items-center space-x-2 bg-white hover:bg-neutral-50 text-neutral-500 hover:text-red-500 px-6 py-4 rounded-2xl border border-neutral-200 transition-all font-bold text-sm shadow-sm"
           >
             <RotateCcw className="w-4 h-4" />
-            <span className="hidden sm:inline">Resetear</span>
+            <span className="hidden sm:inline">Resetear Todo</span>
           </button>
           <button 
             onClick={onLogout}
-            className="flex items-center space-x-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-4 rounded-2xl border border-red-500/20 transition-all font-bold text-sm"
+            className="flex items-center space-x-2 bg-red-50 hover:bg-red-100 text-red-600 px-6 py-4 rounded-2xl border border-red-100 transition-all font-bold text-sm"
           >
             <LogOut className="w-4 h-4" />
-            <span>Salir</span>
+            <span>Cerrar Sesión</span>
           </button>
         </div>
       </header>
 
       {/* Control del Temporizador */}
-      <section className="bg-neutral-900 rounded-[3rem] border border-neutral-800 p-8 md:p-12 mb-12 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+      <section className="bg-white rounded-[3rem] border border-neutral-200 p-8 md:p-12 mb-12 relative overflow-hidden shadow-xl">
+        <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
           <Timer className="w-64 h-64" />
         </div>
         
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Timer className={`w-6 h-6 ${isVotingActive ? 'text-green-500 animate-pulse' : 'text-neutral-600'}`} />
-              <h2 className="text-2xl font-black tracking-tight uppercase italic">Control de Tiempo</h2>
+              <Timer className={`w-8 h-8 ${isVotingActive ? 'text-[#F2CB05] animate-pulse' : 'text-neutral-300'}`} />
+              <h2 className="text-3xl font-black tracking-tight uppercase italic text-[#0D0D0D]">Control de Tiempo</h2>
             </div>
-            <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs">Define la duración de la sesión de votación</p>
+            <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs">Define la duración de la sesión de votación activa</p>
           </div>
 
           <div className="flex flex-col items-center gap-6">
-            <div className={`text-6xl md:text-8xl font-black tracking-tighter tabular-nums ${isVotingActive ? 'text-white' : 'text-neutral-800'}`}>
+            <div className={`text-7xl md:text-9xl font-black tracking-tighter tabular-nums ${isVotingActive ? 'text-[#0D0D0D]' : 'text-neutral-200'}`}>
               {timeLeft !== null ? formatTime(timeLeft) : '05:00'}
             </div>
             
@@ -125,88 +130,88 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
               {!isVotingActive ? (
                 <button
                   onClick={() => onStartVoting(5)}
-                  className="bg-green-500 hover:bg-green-400 text-black font-black px-10 py-5 rounded-[1.5rem] flex items-center gap-3 shadow-xl shadow-green-500/20 transition-all active:scale-95"
+                  className="bg-[#F2CB05] hover:bg-[#F2B705] text-[#0D0D0D] font-black px-12 py-5 rounded-[1.5rem] flex items-center gap-3 shadow-xl shadow-[#F2CB05]/20 transition-all active:scale-95 text-lg"
                 >
                   <Play className="w-6 h-6 fill-current" />
-                  <span className="text-lg">INICIAR 5 MIN</span>
+                  <span>INICIAR 5 MIN</span>
                 </button>
               ) : (
                 <button
                   onClick={onStopVoting}
-                  className="bg-red-500 hover:bg-red-400 text-white font-black px-10 py-5 rounded-[1.5rem] flex items-center gap-3 shadow-xl shadow-red-500/20 transition-all active:scale-95"
+                  className="bg-[#0D0D0D] hover:bg-neutral-800 text-white font-black px-12 py-5 rounded-[1.5rem] flex items-center gap-3 shadow-xl transition-all active:scale-95 text-lg"
                 >
                   <Square className="w-6 h-6 fill-current" />
-                  <span className="text-lg">PARAR AHORA</span>
+                  <span>DETENER RONDAS</span>
                 </button>
               )}
             </div>
           </div>
           
-          <div className="hidden lg:block bg-neutral-950 p-6 rounded-[2rem] border border-neutral-800 max-w-xs">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-neutral-600" />
-              <span className="text-[10px] font-black uppercase text-neutral-600 tracking-widest">Estado</span>
+          <div className="hidden lg:block bg-[#F2F2F2] p-8 rounded-[2.5rem] border border-neutral-200 max-w-xs shadow-inner">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle className="w-5 h-5 text-[#F2CB05]" />
+              <span className="text-xs font-black uppercase text-[#0D0D0D] tracking-widest">Estado Live</span>
             </div>
-            <p className="text-sm font-bold text-neutral-400">
+            <p className="text-sm font-bold text-neutral-500 leading-relaxed">
               {isVotingActive 
-                ? "La votación está abierta. El público puede elegir sus canciones ahora." 
+                ? "Votación abierta. El público puede elegir sus canciones ahora mismo." 
                 : timeLeft === 0 
                   ? "Sesión finalizada. Los resultados están bloqueados para el público." 
-                  : "Listo para iniciar una nueva ronda de 5 minutos."}
+                  : "Sistema listo para iniciar una nueva ronda de 5 minutos."}
             </p>
           </div>
         </div>
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-neutral-900/50 p-8 rounded-[2.5rem] border border-neutral-800">
-          <p className="text-neutral-500 font-black uppercase tracking-widest text-[10px] mb-4">Votos Totales</p>
-          <p className="text-5xl font-black text-white">{totalVotes}</p>
+        <div className="bg-white p-8 rounded-[2.5rem] border border-neutral-200 shadow-sm">
+          <p className="text-neutral-400 font-black uppercase tracking-widest text-[10px] mb-4">Votos Totales</p>
+          <p className="text-5xl font-black text-[#0D0D0D]">{totalVotes}</p>
         </div>
-        <div className="bg-neutral-900/50 p-8 rounded-[2.5rem] border border-neutral-800">
-          <p className="text-neutral-500 font-black uppercase tracking-widest text-[10px] mb-4">Canciones</p>
-          <p className="text-5xl font-black text-white">{songs.length}</p>
+        <div className="bg-white p-8 rounded-[2.5rem] border border-neutral-200 shadow-sm">
+          <p className="text-neutral-400 font-black uppercase tracking-widest text-[10px] mb-4">Canciones Activas</p>
+          <p className="text-5xl font-black text-[#0D0D0D]">{songs.length}</p>
         </div>
-        <div className="bg-neutral-900/50 p-8 rounded-[2.5rem] border border-neutral-800">
-          <p className="text-neutral-500 font-black uppercase tracking-widest text-[10px] mb-4">Favorita</p>
-          <p className="text-xl font-black text-green-500 truncate uppercase">{topSong ? topSong.title : 'N/A'}</p>
+        <div className="bg-white p-8 rounded-[2.5rem] border border-neutral-200 shadow-sm border-l-4 border-l-[#F2CB05]">
+          <p className="text-neutral-400 font-black uppercase tracking-widest text-[10px] mb-4">Más Votada</p>
+          <p className="text-2xl font-black text-[#F2B705] truncate uppercase italic">{topSong ? topSong.title : '---'}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-neutral-900 rounded-[3rem] border border-neutral-800 p-8 md:p-12 min-h-[450px] flex flex-col">
+        <div className="bg-white rounded-[3rem] border border-neutral-200 p-8 md:p-12 min-h-[450px] flex flex-col shadow-lg">
           <div className="flex items-center gap-3 mb-10">
-            <BarChart3 className="text-green-500 w-6 h-6" />
-            <h2 className="text-2xl font-black tracking-tight uppercase italic">Gráfico de Votos</h2>
+            <BarChart3 className="text-[#F2CB05] w-6 h-6" />
+            <h2 className="text-2xl font-black tracking-tight uppercase italic text-[#0D0D0D]">Gráfico en Vivo</h2>
           </div>
           <div className="flex-grow">
             <StatsChart data={songStats} />
           </div>
         </div>
 
-        <div className="bg-neutral-900 rounded-[3rem] border border-neutral-800 p-8 md:p-12">
+        <div className="bg-white rounded-[3rem] border border-neutral-200 p-8 md:p-12 shadow-lg">
           <div className="flex items-center gap-3 mb-10">
-            <ListMusic className="text-green-500 w-6 h-6" />
-            <h2 className="text-2xl font-black tracking-tight uppercase italic">Ranking</h2>
+            <ListMusic className="text-[#F2CB05] w-6 h-6" />
+            <h2 className="text-2xl font-black tracking-tight uppercase italic text-[#0D0D0D]">Ranking Real</h2>
           </div>
           <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
             {songStats.length > 0 ? (
               songStats.map((song) => (
-                <div key={song.id} className="flex items-center p-4 bg-black/40 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <img src={song.coverUrl} className="w-12 h-12 rounded-lg object-cover mr-4" alt="" />
+                <div key={song.id} className="flex items-center p-4 bg-[#F2F2F2] rounded-2xl border border-neutral-100 hover:border-[#F2CB05] transition-colors group">
+                  <img src={song.coverUrl} className="w-12 h-12 rounded-lg object-cover mr-4 shadow-sm" alt="" />
                   <div className="flex-grow min-w-0">
-                    <h4 className="font-bold text-white truncate">{song.title}</h4>
-                    <p className="text-[10px] text-neutral-500 font-black uppercase">{song.artist}</p>
+                    <h4 className="font-bold text-[#0D0D0D] truncate group-hover:text-[#F2B705] transition-colors">{song.title}</h4>
+                    <p className="text-[10px] text-neutral-400 font-black uppercase">{song.artist}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xl font-black text-green-500 block">{song.voteCount}</span>
-                    <span className="text-[9px] font-black text-neutral-700 uppercase">{song.percentage.toFixed(0)}%</span>
+                    <span className="text-xl font-black text-[#0D0D0D] block">{song.voteCount}</span>
+                    <span className="text-[9px] font-black text-[#F2CB05] uppercase tracking-tighter">{song.percentage.toFixed(0)}%</span>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center py-20 text-neutral-700 font-black uppercase tracking-widest text-xs">
-                No hay canciones disponibles
+              <div className="text-center py-20 text-neutral-300 font-black uppercase tracking-widest text-xs">
+                Sin datos por ahora
               </div>
             )}
           </div>
