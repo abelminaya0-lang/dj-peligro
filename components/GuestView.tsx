@@ -146,6 +146,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
       {/* FOOTER - AL RAS CON EL RAYO OCULTO Y ESPACIO LARGO */}
       <footer className="mt-20 py-16 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
+        {/* Sistema Exclusivo Separator */}
         <div className="flex flex-col items-center">
           <p className="text-neutral-500 text-[8px] font-black uppercase tracking-[0.6em] mb-3">SISTEMA EXCLUSIVO • VOTE FLOW</p>
           <div className="flex gap-1">
@@ -153,6 +154,30 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
             <div className="w-12 h-1 bg-[#F2CB05] rounded-full"></div>
             <div className="w-1 h-1 bg-[#F2CB05] rounded-full"></div>
           </div>
+        </div>
+
+        {/* REDES SOCIALES OFICIALES */}
+        <div className="flex justify-center items-center gap-10">
+          <a 
+            href="https://www.instagram.com/djpeligroperu?igsh=MWQ1NmhhcjFubXFvbg==" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300 group relative"
+          >
+            <div className="absolute inset-0 bg-[#F2CB05] blur-xl opacity-0 group-hover:opacity-20 transition-opacity rounded-full"></div>
+            <Instagram className="w-8 h-8 relative z-10" />
+          </a>
+          <a 
+            href="https://www.tiktok.com/@djpeligro?_r=1&_t=ZS-93UIHRWRZ20" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300 group relative"
+          >
+            <div className="absolute inset-0 bg-[#F2CB05] blur-xl opacity-0 group-hover:opacity-20 transition-opacity rounded-full"></div>
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 relative z-10">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
+            </svg>
+          </a>
         </div>
 
         {/* El Rayo Oculto - Botón de acceso al Panel */}
@@ -167,7 +192,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         </div>
 
         {/* Espacio largo final */}
-        <div className="pt-20">
+        <div className="pt-24 pb-12">
           <p className="text-[7px] text-neutral-800 font-bold uppercase tracking-[0.4em]">
             Copyright &copy; 2024 • Vote Flow • Peligro Edition
           </p>
