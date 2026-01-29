@@ -146,8 +146,8 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-6">
-                  {['Merengue', 'Villera', 'Reguetón', 'Electrónica', 'Rock'].map(g => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {['Merengue', 'Villera', 'Reguetón', 'Electrónica', 'Rock', 'Salsa'].map(g => (
                     <button 
                       key={g}
                       onClick={() => setEditGenres(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])}
@@ -159,6 +159,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                         {g === 'Reguetón' && <Disc className="w-8 h-8" />}
                         {g === 'Electrónica' && <Activity className="w-8 h-8" />}
                         {g === 'Rock' && <Mic2 className="w-8 h-8" />}
+                        {g === 'Salsa' && <Music className="w-8 h-8 animate-pulse" />}
                       </div>
                       <span className="text-xl font-black italic uppercase tracking-tighter">{g}</span>
                     </button>

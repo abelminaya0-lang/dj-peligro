@@ -52,6 +52,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
     if (g.includes('electrónica')) return <Activity className="text-[#0D0D0D] w-8 h-8" />;
     if (g.includes('rock')) return <Mic2 className="text-[#0D0D0D] w-8 h-8" />;
     if (g.includes('villera') || g.includes('cumbia')) return <Radio className="text-[#0D0D0D] w-8 h-8" />;
+    if (g.includes('salsa')) return <Music className="text-[#0D0D0D] w-8 h-8" />;
     return <Music className="text-[#0D0D0D] w-8 h-8" />;
   };
 
