@@ -113,20 +113,20 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
               {votingEndsAt ? 'Votación Activa' : 'Sistema en Espera'}
             </div>
             <div className={`text-7xl md:text-9xl font-black tabular-nums tracking-tighter italic leading-none transition-all ${votingEndsAt ? 'text-white' : 'text-neutral-700'}`}>
-              {timeLeft !== null ? `${Math.floor(timeLeft/60000)}:${String(Math.floor((timeLeft%60000)/1000)).padStart(2,'0')}` : '05:00'}
+              {timeLeft !== null ? `${Math.floor(timeLeft/60000)}:${String(Math.floor((timeLeft%60000)/1000)).padStart(2,'0')}` : '06:00'}
             </div>
           </div>
 
           <div className="relative z-10 w-full md:w-auto">
             {!votingEndsAt ? (
               <button 
-                onClick={() => onStartVoting(5)} 
+                onClick={() => onStartVoting(6)} 
                 className="w-full bg-[#F2CB05] hover:bg-[#F2B705] text-[#0D0D0D] px-16 py-8 rounded-3xl font-black flex flex-col items-center gap-1 shadow-[0_20px_60px_-10px_rgba(242,203,5,0.4)] hover:scale-[1.05] active:scale-95 transition-all text-2xl italic uppercase group"
               >
                 <div className="flex items-center gap-3">
                   <Play className="w-8 h-8 fill-current" /> INICIAR
                 </div>
-                <span className="text-[10px] tracking-[0.3em] font-bold opacity-70">ABRIR VOTOS (5:00)</span>
+                <span className="text-[10px] tracking-[0.3em] font-bold opacity-70">ABRIR VOTOS (6:00)</span>
               </button>
             ) : (
               <button 
