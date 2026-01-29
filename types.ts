@@ -6,9 +6,11 @@ export interface Song {
   coverUrl: string;
 }
 
+export type VotingMode = 'songs' | 'genres';
+
 export interface Vote {
   id: string;
-  songId: string;
+  targetId: string; // Puede ser un songId o el nombre del género
   voterName: string;
   whatsapp?: string;
   timestamp: number;
@@ -20,6 +22,12 @@ export interface DJUser {
 }
 
 export interface SongWithStats extends Song {
+  voteCount: number;
+  percentage: number;
+}
+
+export interface GenreStats {
+  name: string;
   voteCount: number;
   percentage: number;
 }
