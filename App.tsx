@@ -23,6 +23,12 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : { email: '', isAuthenticated: false };
   });
 
+  // Estado para el temporizador de votación
+  const [votingEndsAt, setVotingEndsAt] = useState<number | null>(() => {
+    const saved = localStorage.getItem('voting_ends_at');
+    return saved ? Number(saved) : null;
+  });
+
   useEffect(() => {
     localStorage.setItem('dj_songs', JSON.stringify(songs));
   }, [songs]);
@@ -35,20 +41,36 @@ const App: React.FC = () => {
     localStorage.setItem('dj_user', JSON.stringify(djUser));
   }, [djUser]);
 
+  useEffect(() => {
+    if (votingEndsAt) {
+      localStorage.setItem('voting_ends_at', votingEndsAt.toString());
+    } else {
+      localStorage.removeItem('voting_ends_at');
+    }
+  }, [votingEndsAt]);
+
   const handleVote = useCallback((songId: string, voterName: string, whatsapp?: string) => {
+    const now = Date.now();
+    // Validar si la votación sigue activa
+    if (votingEndsAt && now > votingEndsAt) {
+      alert("La votación ha terminado.");
+      return;
+    }
+
     const newVote: Vote = {
       id: Math.random().toString(36).substr(2, 9),
       songId,
       voterName,
       whatsapp,
-      timestamp: Date.now(),
+      timestamp: now,
     };
     setVotes(prev => [...prev, newVote]);
     localStorage.setItem('has_voted', 'true');
-  }, []);
+  }, [votingEndsAt]);
 
   const handleResetVotes = useCallback(() => {
     setVotes([]);
+    setVotingEndsAt(null);
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -59,6 +81,15 @@ const App: React.FC = () => {
     setSongs(updatedSongs);
   }, []);
 
+  const startVotingSession = useCallback((minutes: number) => {
+    const endTime = Date.now() + (minutes * 60 * 1000);
+    setVotingEndsAt(endTime);
+  }, []);
+
+  const stopVotingSession = useCallback(() => {
+    setVotingEndsAt(null);
+  }, []);
+
   return (
     <HashRouter>
       <div className="min-h-screen bg-neutral-950 text-white selection:bg-green-500/30">
@@ -66,7 +97,13 @@ const App: React.FC = () => {
           {/* Guest Routes */}
           <Route 
             path="/" 
-            element={<GuestView songs={songs} onVote={handleVote} />} 
+            element={
+              <GuestView 
+                songs={songs} 
+                onVote={handleVote} 
+                votingEndsAt={votingEndsAt}
+              />
+            } 
           />
           
           {/* DJ Admin Routes */}
@@ -90,6 +127,9 @@ const App: React.FC = () => {
                   onReset={handleResetVotes} 
                   onLogout={handleLogout}
                   onUpdateSongs={handleUpdateSongs}
+                  votingEndsAt={votingEndsAt}
+                  onStartVoting={startVotingSession}
+                  onStopVoting={stopVotingSession}
                 />
               ) : (
                 <Navigate to="/admin" replace />

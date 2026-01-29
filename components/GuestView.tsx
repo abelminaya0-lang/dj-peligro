@@ -2,25 +2,57 @@
 import React, { useState, useEffect } from 'react';
 import { Song } from '../types';
 import SongCard from './SongCard';
-import { Music, CheckCircle, Lock, ChevronRight, ListMusic, Info, Instagram, Heart } from 'lucide-react';
+import { Music, CheckCircle, Lock, ChevronRight, ListMusic, Info, Instagram, Heart, Timer, AlarmClockOff } from 'lucide-react';
 
 interface GuestViewProps {
   songs: Song[];
   onVote: (songId: string, name: string, whatsapp?: string) => void;
+  votingEndsAt: number | null;
 }
 
-const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
+const GuestView: React.FC<GuestViewProps> = ({ songs, onVote, votingEndsAt }) => {
   const [hasVoted, setHasVoted] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [votedSongTitle, setVotedSongTitle] = useState('');
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
     const voted = localStorage.getItem('has_voted') === 'true';
     setHasVoted(voted);
   }, []);
 
+  useEffect(() => {
+    if (!votingEndsAt) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const difference = votingEndsAt - now;
+      if (difference <= 0) {
+        setTimeLeft(0);
+        clearInterval(interval);
+      } else {
+        setTimeLeft(difference);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [votingEndsAt]);
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const isVotingClosed = votingEndsAt !== null && (timeLeft !== null && timeLeft <= 0);
+  const isVotingDisabled = isVotingClosed || hasVoted || !votingEndsAt;
+
   const handleDirectVote = (song: Song) => {
-    if (!hasVoted) {
+    if (!isVotingDisabled) {
       onVote(song.id, 'Anónimo', '');
       setVotedSongTitle(song.title);
       setHasVoted(true);
@@ -37,7 +69,6 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center bg-black">
         <div className="max-w-md w-full bg-neutral-900 rounded-[3rem] p-10 md:p-14 border border-neutral-800 shadow-2xl animate-in fade-in zoom-in duration-500 relative overflow-hidden">
-          {/* Decorative background glow */}
           <div className="absolute -top-24 -left-24 w-48 h-48 bg-green-500/10 blur-[80px] rounded-full"></div>
           <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/10 blur-[80px] rounded-full"></div>
 
@@ -97,14 +128,59 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
 
   return (
     <div className="max-w-screen-md mx-auto px-4 py-12 md:py-20 flex flex-col min-h-screen">
-      <header className="text-center mb-16 space-y-6">
+      {/* Timer Display */}
+      {votingEndsAt && (
+        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ${isVotingClosed ? 'scale-110' : 'scale-100'}`}>
+          <div className={`flex items-center gap-4 px-8 py-4 rounded-full border shadow-2xl backdrop-blur-xl ${
+            isVotingClosed 
+              ? 'bg-red-500/20 border-red-500/50 text-red-500' 
+              : timeLeft && timeLeft < 30000 
+                ? 'bg-orange-500/20 border-orange-500/50 text-orange-500 animate-pulse' 
+                : 'bg-green-500/20 border-green-500/50 text-green-500'
+          }`}>
+            {isVotingClosed ? <AlarmClockOff className="w-6 h-6" /> : <Timer className="w-6 h-6 animate-spin-slow" />}
+            <span className="text-2xl font-black tracking-widest tabular-nums leading-none">
+              {isVotingClosed ? 'VOTACIÓN CERRADA' : timeLeft ? formatTime(timeLeft) : '...'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <header className="text-center mb-16 space-y-6 pt-12">
         <div className="inline-flex items-center justify-center w-24 h-24 bg-green-500 rounded-[2.5rem] rotate-12 mb-4 shadow-2xl shadow-green-500/20 group hover:rotate-0 transition-all duration-700 cursor-pointer">
           <Music className="w-12 h-12 text-black -rotate-12 group-hover:rotate-0 transition-all duration-700" />
         </div>
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none text-white uppercase italic">
           DJ <span className="text-green-500">PELIGRO</span> <br/>VOTE FLOW
         </h1>
-        {hasVoted ? (
+        
+        {isVotingClosed ? (
+          <div className="bg-red-500/10 border border-red-500/30 p-6 rounded-[2.5rem] inline-flex flex-col items-center gap-4 animate-in zoom-in">
+             <div className="bg-red-500 p-3 rounded-full shadow-lg shadow-red-500/20">
+              <AlarmClockOff className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-black text-white italic">TIEMPO AGOTADO</h2>
+            <p className="text-neutral-400 text-sm font-bold max-w-xs uppercase">
+              La ronda de votación ha terminado. Espera a que el DJ inicie una nueva.
+            </p>
+            <a 
+              href="https://www.instagram.com/djpeligroperu?igsh=MWQ1NmhhcjFubXFvbg=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black py-4 px-8 rounded-2xl flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95"
+            >
+              <Instagram className="w-5 h-5" />
+              VER RESULTADOS EN VIVO
+            </a>
+          </div>
+        ) : !votingEndsAt ? (
+           <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] inline-flex flex-col items-center gap-4 animate-in fade-in">
+             <div className="bg-neutral-800 p-3 rounded-full animate-pulse">
+               <Music className="w-8 h-8 text-neutral-500" />
+             </div>
+             <p className="text-neutral-500 text-sm font-black uppercase tracking-widest">Esperando inicio de sesión...</p>
+           </div>
+        ) : hasVoted ? (
           <div className="bg-neutral-900/50 border border-neutral-800 p-5 rounded-[2rem] inline-flex flex-col md:flex-row items-center gap-4 animate-in fade-in slide-in-from-top-4 shadow-xl">
             <div className="flex items-center gap-3">
               <div className="bg-green-500/20 p-2 rounded-full">
@@ -132,12 +208,12 @@ const GuestView: React.FC<GuestViewProps> = ({ songs, onVote }) => {
         )}
       </header>
 
-      <div className="grid grid-cols-1 gap-4 flex-grow animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <div className={`grid grid-cols-1 gap-4 flex-grow animate-in fade-in slide-in-from-bottom-8 duration-700 ${isVotingDisabled ? 'pointer-events-none' : ''}`}>
         {songs.map((song) => (
           <SongCard 
             key={song.id} 
             song={song} 
-            disabled={hasVoted}
+            disabled={isVotingDisabled}
             onClick={() => handleDirectVote(song)} 
           />
         ))}
