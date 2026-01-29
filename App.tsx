@@ -19,7 +19,7 @@ const App: React.FC = () => {
 
   const [activeGenres, setActiveGenres] = useState<string[]>(() => {
     const saved = localStorage.getItem('active_genres');
-    return saved ? JSON.parse(saved) : ['Reggaetón', 'Electrónica', 'Salsa', 'Cumbia'];
+    return saved ? JSON.parse(saved) : ['Merengue', 'Villera', 'Reguetón', 'Electrónica', 'Rock'];
   });
 
   const [votes, setVotes] = useState<Vote[]>(() => {

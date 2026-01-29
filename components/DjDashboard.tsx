@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import StatsChart from './StatsChart';
-import { LogOut, RotateCcw, BarChart3, Home, Timer, Play, Square, Save, Music, Disc, Radio, LayoutDashboard, Activity, Sun, Moon } from 'lucide-react';
+import { LogOut, RotateCcw, BarChart3, Home, Timer, Play, Square, Save, Music, Disc, Radio, LayoutDashboard, Activity, Sun, Moon, Mic2 } from 'lucide-react';
 
 interface DjDashboardProps {
   activeMode: VotingMode;
@@ -147,13 +147,20 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-6">
-                  {['Reggaetón', 'Electrónica', 'Salsa', 'Cumbia'].map(g => (
+                  {['Merengue', 'Villera', 'Reguetón', 'Electrónica', 'Rock'].map(g => (
                     <button 
                       key={g}
                       onClick={() => setEditGenres(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])}
-                      className={`p-10 rounded-[2.5rem] border-4 flex flex-col items-center gap-4 transition-all theme-transition ${editGenres.includes(g) ? 'border-[#F2CB05] bg-[#F2CB05]/5 text-[#F2CB05]' : 'border-[var(--border-color)] text-neutral-400 opacity-60'}`}
+                      className={`p-10 rounded-[2.5rem] border-4 flex flex-col items-center gap-4 transition-all theme-transition ${editGenres.includes(g) ? 'border-[#F2CB05] bg-[#F2CB05]/5 text-[#F2CB05] shadow-lg shadow-[#F2CB05]/20 scale-105' : 'border-[var(--border-color)] text-neutral-400 opacity-60 hover:opacity-100 hover:border-[#F2CB05]/50'}`}
                     >
-                      <span className="text-2xl font-black italic uppercase tracking-tighter">{g}</span>
+                      <div className="mb-2">
+                        {g === 'Merengue' && <Music className="w-8 h-8" />}
+                        {g === 'Villera' && <Radio className="w-8 h-8" />}
+                        {g === 'Reguetón' && <Disc className="w-8 h-8" />}
+                        {g === 'Electrónica' && <Activity className="w-8 h-8" />}
+                        {g === 'Rock' && <Mic2 className="w-8 h-8" />}
+                      </div>
+                      <span className="text-xl font-black italic uppercase tracking-tighter">{g}</span>
                     </button>
                   ))}
                 </div>

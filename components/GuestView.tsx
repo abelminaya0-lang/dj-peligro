@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, ShieldCheck, ChevronRight, Music, Mic2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface GuestViewProps {
@@ -45,6 +45,15 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
   };
 
   const isClosed = votingEndsAt !== null && timeLeft === 0;
+
+  const getGenreIcon = (genre: string) => {
+    const g = genre.toLowerCase();
+    if (g.includes('reggaetón') || g.includes('regueton')) return <Disc className="text-[#0D0D0D] w-8 h-8" />;
+    if (g.includes('electrónica')) return <Activity className="text-[#0D0D0D] w-8 h-8" />;
+    if (g.includes('rock')) return <Mic2 className="text-[#0D0D0D] w-8 h-8" />;
+    if (g.includes('villera') || g.includes('cumbia')) return <Radio className="text-[#0D0D0D] w-8 h-8" />;
+    return <Music className="text-[#0D0D0D] w-8 h-8" />;
+  };
 
   return (
     <div className="max-w-screen-md mx-auto px-4 py-12 flex flex-col min-h-screen theme-transition bg-[#0D0D0D]">
@@ -118,8 +127,8 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
                 className="group relative flex items-center justify-between bg-[var(--card-bg)] p-8 rounded-[2.5rem] border-2 border-transparent hover:border-[#F2CB05] transition-all shadow-xl active:scale-95 disabled:opacity-50 theme-transition overflow-hidden"
               >
                 <div className="flex items-center gap-8 relative z-10">
-                  <div className="bg-[#F2CB05] p-5 rounded-2xl group-hover:rotate-12 transition-all duration-500">
-                    {g === 'Reggaetón' ? <Disc className="text-[#0D0D0D] w-8 h-8" /> : g === 'Electrónica' ? <Activity className="text-[#0D0D0D] w-8 h-8" /> : <Radio className="text-[#0D0D0D] w-8 h-8" />}
+                  <div className="bg-[#F2CB05] p-5 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-[#F2CB05]/20">
+                    {getGenreIcon(g)}
                   </div>
                   <span className="text-4xl font-black italic uppercase tracking-tighter group-hover:text-[#F2B705] transition-colors">{g}</span>
                 </div>
