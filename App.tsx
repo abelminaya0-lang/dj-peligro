@@ -42,7 +42,11 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    document.body.classList.toggle('dark-mode', isDarkMode);
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
@@ -77,13 +81,15 @@ const App: React.FC = () => {
     setVotingMode(mode);
     setActiveSongs(songs);
     setActiveGenres(genres);
-    setVotes([]); // Reiniciar votos al cambiar de ronda
+    setVotes([]);
     localStorage.removeItem('has_voted');
   }, []);
 
+  const toggleTheme = () => setIsDarkMode(prev => !prev);
+
   return (
     <HashRouter>
-      <div className={`min-h-screen theme-transition bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-[#F2CB05]/30`}>
+      <div className={`min-h-screen theme-transition bg-[#0D0D0D] text-[var(--text-primary)] selection:bg-[#F2CB05]/30`}>
         <Routes>
           <Route 
             path="/" 
@@ -96,7 +102,7 @@ const App: React.FC = () => {
                 onVote={handleVote} 
                 votingEndsAt={votingEndsAt}
                 isDarkMode={isDarkMode}
-                toggleTheme={() => setIsDarkMode(!isDarkMode)}
+                toggleTheme={toggleTheme}
               />
             } 
           />
@@ -104,7 +110,7 @@ const App: React.FC = () => {
             path="/admin" 
             element={
               djUser.isAuthenticated ? <Navigate to="/dashboard" replace /> : 
-              <DjLogin onLogin={(email) => setDjUser({ email, isAuthenticated: true })} isDarkMode={isDarkMode} toggleTheme={() => setIsDarkMode(!isDarkMode)} />
+              <DjLogin onLogin={(email) => setDjUser({ email, isAuthenticated: true })} isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
             } 
           />
           <Route 
@@ -123,7 +129,7 @@ const App: React.FC = () => {
                   onStartVoting={(m) => setVotingEndsAt(Date.now() + m * 60000)}
                   onStopVoting={() => setVotingEndsAt(null)}
                   isDarkMode={isDarkMode}
-                  toggleTheme={() => setIsDarkMode(!isDarkMode)}
+                  toggleTheme={toggleTheme}
                 />
               ) : <Navigate to="/admin" replace />
             } 
