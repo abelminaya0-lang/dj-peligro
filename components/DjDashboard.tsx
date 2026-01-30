@@ -78,7 +78,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
             <button onClick={() => setShowQrModal(false)} className="absolute top-6 right-6 p-4 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors">
               <Share2 className="w-6 h-6 rotate-180" />
             </button>
-            <img src={DJ_LOGO} className="w-32 mb-8 drop-shadow-[0_0_20px_#F2CB05]" alt="DJ Peligro" />
+            <img src={DJ_LOGO} className="w-40 mb-8 drop-shadow-[0_0_20px_#F2CB05]" alt="DJ Peligro" />
             <h2 className="text-3xl font-black italic uppercase text-[#F2CB05] mb-2">ESCANEA Y VOTA</h2>
             <p className="text-neutral-500 font-bold text-[10px] uppercase tracking-[0.4em] mb-10">Muestra este código en las pantallas</p>
             <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] mb-10">
@@ -97,7 +97,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
       {/* HEADER PRINCIPAL */}
       <header className="flex flex-col lg:flex-row justify-between items-center bg-[var(--card-bg)] p-6 md:p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-xl theme-transition gap-6">
         <div className="flex items-center gap-5">
-          <img src={DJ_LOGO} className="w-20 h-20 object-contain drop-shadow-[0_5px_15px_rgba(242,203,5,0.3)]" alt="DJ Peligro" />
+          <img src={DJ_LOGO} className="w-28 h-28 object-contain drop-shadow-[0_5px_15px_rgba(242,203,5,0.3)]" alt="DJ Peligro" />
           <div>
             <h1 className="text-3xl font-black italic tracking-tighter text-[var(--text-primary)] leading-tight uppercase">PANEL <span className="text-[#F2B705]">DJ PELIGRO</span></h1>
             <p className="text-neutral-500 text-[10px] font-black uppercase tracking-[0.4em]">Master Control • Live</p>

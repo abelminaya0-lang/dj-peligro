@@ -50,7 +50,7 @@ const DjLogin: React.FC<DjLoginProps> = ({ onLogin, isDarkMode, toggleTheme }) =
           <header className="mb-12 flex flex-col items-center">
             <div className="relative mb-8 group">
               <div className="absolute inset-0 bg-[#F2CB05] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-              <img src={DJ_LOGO} className="w-32 h-32 relative z-10 object-contain drop-shadow-[0_10px_20px_rgba(242,203,5,0.4)]" alt="Logo" />
+              <img src={DJ_LOGO} className="w-44 h-44 relative z-10 object-contain drop-shadow-[0_10px_20px_rgba(242,203,5,0.4)]" alt="Logo" />
             </div>
             <div className="flex items-center gap-2 mb-2">
               <ShieldCheck className="w-5 h-5 text-[#F2CB05]" />
