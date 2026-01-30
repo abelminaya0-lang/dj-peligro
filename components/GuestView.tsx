@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Music, Mic2, Users, BarChart3, Zap } from 'lucide-react';
+import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Music, Mic2, Users, BarChart3, Zap, Trophy } from 'lucide-react';
 import PostVoteModal from './PostVoteModal';
 import VoteModal from './VoteModal';
 
@@ -85,27 +85,18 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   const getGenreIcon = (genre: string) => {
     const g = genre.toLowerCase();
-    if (g.includes('reggaetón') || g.includes('regueton')) return <Disc className="text-black w-7 h-7" />;
-    if (g.includes('electrónica')) return <Activity className="text-black w-7 h-7" />;
-    if (g.includes('rock')) return <Mic2 className="text-black w-7 h-7" />;
-    if (g.includes('villera') || g.includes('cumbia')) return <Radio className="text-black w-7 h-7" />;
-    if (g.includes('salsa')) return <Music className="text-black w-7 h-7" />;
-    return <Music className="text-black w-7 h-7" />;
+    if (g.includes('reggaetón') || g.includes('regueton')) return <Disc className="text-black w-8 h-8" />;
+    if (g.includes('electrónica')) return <Activity className="text-black w-8 h-8" />;
+    if (g.includes('rock')) return <Mic2 className="text-black w-8 h-8" />;
+    if (g.includes('villera') || g.includes('cumbia')) return <Radio className="text-black w-8 h-8" />;
+    if (g.includes('salsa')) return <Music className="text-black w-8 h-8" />;
+    return <Music className="text-black w-8 h-8" />;
   };
 
   return (
-    <div className="max-w-screen-md mx-auto px-4 flex flex-col min-h-[100dvh] bg-[#0D0D0D] pb-10 overflow-x-hidden relative">
+    <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-[#0D0D0D] pb-2 overflow-x-hidden relative">
       {/* PANTALLA DE BLOQUEO TEMPORAL POST-VOTO */}
       <PostVoteModal isVisible={cooldownRemaining > 0} cooldownMs={cooldownRemaining} />
-
-      {/* ACCESO RÁPIDO DJ (EL RAYO) */}
-      <Link 
-        to="/admin" 
-        className="fixed bottom-6 right-6 z-[80] p-4 bg-[#F2CB05] text-black rounded-full shadow-[0_10px_30px_rgba(242,203,5,0.4)] hover:scale-110 active:scale-95 transition-all group"
-        aria-label="Acceso DJ"
-      >
-        <Zap className="w-6 h-6 fill-current animate-pulse group-hover:animate-none" />
-      </Link>
 
       {/* MODAL DE REGISTRO */}
       {selectedItem && (
@@ -116,56 +107,49 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         />
       )}
 
-      <header className="text-center pt-10 mb-6 animate-in fade-in duration-700">
-        <div className="relative w-full flex justify-center mb-6">
-          <img 
-            src={DJ_LOGO} 
-            className="w-56 md:w-[28rem] object-contain drop-shadow-[0_0_35px_rgba(242,203,5,0.5)] transform hover:scale-105 transition-transform duration-500" 
-            alt="DJ Peligro" 
-          />
+      <header className="text-center pt-2 mb-2 animate-in fade-in duration-1000">
+        <div className="relative w-full flex justify-center mb-1">
+          <div className="relative">
+             <div className="absolute inset-0 bg-[#F2CB05] blur-[80px] opacity-20 animate-pulse"></div>
+             <img 
+               src={DJ_LOGO} 
+               className="w-80 md:w-[40rem] object-contain drop-shadow-[0_0_60px_rgba(242,203,5,0.7)] transform hover:scale-105 transition-transform duration-700 relative z-10" 
+               alt="DJ Peligro" 
+             />
+          </div>
         </div>
         
-        <div className="inline-block bg-white text-black px-10 py-5 md:px-14 md:py-8 transform -skew-x-12 shadow-[0_20px_50px_-10px_rgba(242,203,5,0.5)] border-r-[8px] border-b-[8px] border-[#F2CB05] mb-12">
-          <h2 className="text-lg md:text-4xl font-[900] uppercase italic tracking-tighter leading-none">
-            LA PRÓXIMA CANCIÓN LA ELIGES TÚ
+        <div className="inline-block bg-white text-black px-12 py-4 md:px-20 md:py-8 transform -skew-x-6 shadow-[0_20px_50px_-20px_rgba(242,203,5,0.7)] border-r-[8px] border-b-[8px] border-[#F2CB05] mb-4 w-full">
+          <h2 className="text-xl md:text-5xl font-[900] uppercase italic tracking-tighter leading-none">
+            LA PRÓXIMA CANCIÓN <span className="text-[#F2B705]">LA ELIGES TÚ</span>
           </h2>
         </div>
 
-        <div className="bg-[#151515] border border-white/5 rounded-[3rem] p-7 flex items-center justify-around shadow-2xl mb-10">
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-1.5 text-[#F2CB05] font-black text-[11px] uppercase tracking-[0.3em] mb-1">
-              <Users className="w-4 h-4" /> PARTICIPANTES
+        {/* STATS COMPACTOS */}
+        <div className="grid grid-cols-2 gap-1 mb-2">
+            <div className="bg-[#151515] border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-4">
+               <Users className="w-5 h-5 text-[#F2CB05]" />
+               <span className="text-3xl font-black italic text-white">{votes.length} <span className="text-[10px] uppercase tracking-widest opacity-40">VOTOS</span></span>
             </div>
-            <span className="text-4xl font-black italic tracking-tighter">{votes.length}</span>
-          </div>
-          <div className="h-14 w-px bg-white/10"></div>
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-1.5 text-[#F2CB05] font-black text-[11px] uppercase tracking-[0.3em] mb-1">
-               <BarChart3 className="w-4 h-4" /> LÍDER ACTUAL
+            <div className="bg-[#151515] border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-4 overflow-hidden">
+               <Trophy className="w-5 h-5 text-[#F2CB05] shrink-0" />
+               <span className="text-lg font-black italic uppercase text-white truncate">{stats[0]?.count > 0 ? stats[0].name : "---"}</span>
             </div>
-            <span className="text-lg font-black italic uppercase truncate max-w-[160px]">
-              {stats[0]?.count > 0 ? stats[0].name : "---"}
-            </span>
-          </div>
         </div>
 
         {votingEndsAt && (
-          <div className={`w-full flex items-center justify-center gap-4 py-6 rounded-[2.5rem] border-2 ${isClosed ? 'bg-red-500 border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white shadow-lg shadow-[#F2CB05]/10'}`}>
-            {!isClosed && <Timer className="w-7 h-7 animate-pulse text-[#F2CB05]" />}
-            <span className="text-3xl font-black tracking-[0.15em] italic">
-              {isClosed ? 'VOTACIÓN CERRADA' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
+          <div className={`w-full flex items-center justify-center gap-4 py-4 rounded-2xl border-2 mb-2 transition-all ${isClosed ? 'bg-red-500 border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white'}`}>
+            {!isClosed && <Timer className="w-6 h-6 animate-pulse text-[#F2CB05]" />}
+            <span className="text-3xl font-black tracking-widest italic tabular-nums">
+              {isClosed ? 'CERRADO' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
             </span>
           </div>
         )}
       </header>
 
-      <main className="flex-grow space-y-4 px-1">
-        <p className="text-center text-neutral-600 font-black uppercase text-[11px] tracking-[0.5em] mb-8 opacity-50">
-          TOCA PARA VOTAR:
-        </p>
-        
+      <main className="flex-grow space-y-1 px-0.5">
         {mode === 'songs' ? (
-          <div className="space-y-5">
+          <div className="space-y-1">
             {songs.map(song => (
               <SongCard 
                 key={song.id} 
@@ -176,23 +160,23 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5">
+          <div className="grid grid-cols-1 gap-1">
             {genres.map(g => (
               <button 
                 key={g} 
                 onClick={() => handleInitiateVote(g, g, 'DJ PELIGRO', 'https://picsum.photos/seed/genre/300/300')}
                 disabled={isClosed || cooldownRemaining > 0}
-                className="group relative flex items-center justify-between p-7 rounded-[3rem] border-2 transition-all active:scale-95 bg-[#1A1A1A] border-white/5 disabled:opacity-50 shadow-xl"
+                className="group relative flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-[0.98] bg-[#1A1A1A] border-white/5 disabled:opacity-50"
               >
-                <div className="flex items-center gap-7">
-                  <div className="p-6 rounded-2xl bg-[#F2CB05] shadow-lg shadow-[#F2CB05]/20">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 rounded-xl bg-[#F2CB05] shadow-lg group-hover:rotate-6 transition-transform">
                     {getGenreIcon(g)}
                   </div>
-                  <span className="text-3xl font-[900] italic uppercase tracking-tighter text-white">
+                  <span className="text-2xl font-[900] italic uppercase tracking-tighter text-white">
                     {g}
                   </span>
                 </div>
-                <div className="font-black px-10 py-6 rounded-2xl italic text-base bg-white text-black shadow-lg">
+                <div className="font-black px-8 py-4 rounded-xl italic text-sm bg-white text-black group-hover:bg-[#F2CB05] transition-colors">
                   VOTAR
                 </div>
               </button>
@@ -201,12 +185,22 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </main>
 
-      <footer className="mt-20 py-14 text-center border-t border-white/5 opacity-30">
-        <p className="text-[11px] font-black uppercase tracking-[1em] mb-8">DJ PELIGRO • ID SYSTEM</p>
-        <div className="flex justify-center gap-10">
-           <Instagram className="w-7 h-7" />
-           <Music className="w-7 h-7" />
+      <footer className="mt-4 py-6 text-center border-t border-white/5 flex flex-col items-center gap-4">
+        <div className="flex justify-center gap-10 items-center">
+           <a href="https://instagram.com/djpeligroperu" target="_blank" rel="noopener noreferrer" className="opacity-20 hover:opacity-100 transition-opacity">
+              <Instagram className="w-8 h-8" />
+           </a>
+           <Music className="w-8 h-8 opacity-20 hover:opacity-100 transition-opacity" />
+           <Activity className="w-8 h-8 opacity-20 hover:opacity-100 transition-opacity" />
+           <Link 
+             to="/admin" 
+             className="opacity-5 hover:opacity-100 transition-opacity p-2 hover:scale-110 active:scale-95 duration-300"
+             aria-label="Panel DJ"
+           >
+             <Zap className="w-7 h-7 text-[#F2CB05] fill-current" />
+           </Link>
         </div>
+        <p className="text-[10px] font-black uppercase tracking-[1em] opacity-10 leading-none">DJ PELIGRO • VOTE SYSTEM</p>
       </footer>
     </div>
   );

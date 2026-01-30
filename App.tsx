@@ -6,6 +6,7 @@ import { Song, Vote, DJUser, VotingMode } from './types';
 import GuestView from './components/GuestView';
 import DjDashboard from './components/DjDashboard';
 import DjLogin from './components/DjLogin';
+import PublicResults from './components/PublicResults';
 
 const App: React.FC = () => {
   const [votingMode, setVotingMode] = useState<VotingMode>(() => {
@@ -37,8 +38,6 @@ const App: React.FC = () => {
     return saved ? Number(saved) : null;
   });
 
-  const [isDarkMode] = useState(true);
-
   const [voterId] = useState(() => {
     let id = localStorage.getItem('voter_device_id');
     if (!id) {
@@ -48,21 +47,20 @@ const App: React.FC = () => {
     return id;
   });
 
-  // NOTA PARA EL USUARIO: Para que funcione en dispositivos distintos,
-  // aquí es donde se implementaría la llamada a una API real (Firebase/Supabase).
-  // El siguiente bloque simula la escucha de cambios globales.
+  // SINCRONIZACIÓN ENTRE DISPOSITIVOS
+  // Nota técnica: LocalStorage es local al navegador. 
+  // Para sincronizar laptop -> celular EXTERNOS, se requiere Firebase/Supabase.
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'voting_mode' && e.newValue) setVotingMode(e.newValue as VotingMode);
-      if (e.key === 'active_songs' && e.newValue) setActiveSongs(JSON.parse(e.newValue));
-      if (e.key === 'active_genres' && e.newValue) setActiveGenres(JSON.parse(e.newValue));
-      if (e.key === 'dj_votes' && e.newValue) setVotes(JSON.parse(e.newValue));
-      if (e.key === 'voting_ends_at') setVotingEndsAt(e.newValue ? Number(e.newValue) : null);
-      if (e.key === 'dj_user' && e.newValue) setDjUser(JSON.parse(e.newValue));
+    const handleStorage = (e: StorageEvent | null) => {
+      if (!e || e.key === 'voting_mode') setVotingMode((localStorage.getItem('voting_mode') as VotingMode) || 'songs');
+      if (!e || e.key === 'active_songs') setActiveSongs(JSON.parse(localStorage.getItem('active_songs') || '[]'));
+      if (!e || e.key === 'active_genres') setActiveGenres(JSON.parse(localStorage.getItem('active_genres') || '[]'));
+      if (!e || e.key === 'dj_votes') setVotes(JSON.parse(localStorage.getItem('dj_votes') || '[]'));
+      if (!e || e.key === 'voting_ends_at') setVotingEndsAt(Number(localStorage.getItem('voting_ends_at')) || null);
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   useEffect(() => {
@@ -126,8 +124,20 @@ const App: React.FC = () => {
                 votes={votes}
                 onVote={handleVote} 
                 votingEndsAt={votingEndsAt}
-                isDarkMode={isDarkMode}
+                isDarkMode={true}
                 toggleTheme={() => {}}
+              />
+            } 
+          />
+          <Route 
+            path="/results" 
+            element={
+              <PublicResults 
+                mode={votingMode}
+                songs={activeSongs}
+                genres={activeGenres}
+                votes={votes}
+                votingEndsAt={votingEndsAt}
               />
             } 
           />
@@ -135,7 +145,7 @@ const App: React.FC = () => {
             path="/admin" 
             element={
               djUser.isAuthenticated ? <Navigate to="/dashboard" replace /> : 
-              <DjLogin onLogin={(email) => setDjUser({ email, isAuthenticated: true })} isDarkMode={isDarkMode} toggleTheme={() => {}} />
+              <DjLogin onLogin={(email) => setDjUser({ email, isAuthenticated: true })} isDarkMode={true} toggleTheme={() => {}} />
             } 
           />
           <Route 
@@ -173,7 +183,7 @@ const App: React.FC = () => {
                     localStorage.removeItem('voting_ends_at');
                     window.dispatchEvent(new Event('storage'));
                   }}
-                  isDarkMode={isDarkMode}
+                  isDarkMode={true}
                   toggleTheme={() => {}}
                 />
               ) : <Navigate to="/admin" replace />
