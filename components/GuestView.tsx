@@ -1,32 +1,38 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Sun, Moon, Music, Mic2, Check, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Music, Mic2, Users, BarChart3, Zap } from 'lucide-react';
 import PostVoteModal from './PostVoteModal';
+import VoteModal from './VoteModal';
 
 interface GuestViewProps {
   mode: VotingMode;
   songs: Song[];
   genres: string[];
   votes: Vote[];
-  onVote: (targetId: string) => void;
+  onVote: (targetId: string, name?: string, phone?: string) => void;
   votingEndsAt: number | null;
   isDarkMode: boolean;
   toggleTheme: () => void;
 }
 
-const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, votingEndsAt, isDarkMode, toggleTheme }) => {
+const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, votingEndsAt, votes, isDarkMode, toggleTheme }) => {
   const [hasVoted, setHasVoted] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{id: string, title: string, artist: string, coverUrl: string} | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
-  const RAYO_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722452/LOGO_RAYO_qd5arr.png";
 
   useEffect(() => {
-    setHasVoted(localStorage.getItem('has_voted') === 'true');
-  }, [votingEndsAt, mode]);
+    // Verificar estado inicial y escuchar cambios de localStorage para sync real-time
+    const checkVoted = () => setHasVoted(localStorage.getItem('has_voted') === 'true');
+    checkVoted();
+    
+    window.addEventListener('storage', checkVoted);
+    return () => window.removeEventListener('storage', checkVoted);
+  }, []);
 
   useEffect(() => {
     if (!votingEndsAt) { setTimeLeft(null); return; }
@@ -37,11 +43,28 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
     return () => clearInterval(interval);
   }, [votingEndsAt]);
 
-  const handleVoteAction = (id: string) => {
+  const stats = useMemo(() => {
+    const total = votes.length;
+    const items = mode === 'songs' ? songs : genres;
+    return items.map(item => {
+      const id = typeof item === 'string' ? item : item.id;
+      const name = typeof item === 'string' ? item : item.title;
+      const count = votes.filter(v => v.targetId === id).length;
+      return { name, count, percentage: total > 0 ? Math.round((count / total) * 100) : 0 };
+    }).sort((a, b) => b.count - a.count);
+  }, [votes, songs, genres, mode]);
+
+  const handleInitiateVote = (id: string, title: string, artist: string, cover: string) => {
     if (!hasVoted && (!votingEndsAt || (timeLeft && timeLeft > 0))) {
-      onVote(id);
+      setSelectedItem({ id, title, artist, coverUrl: cover });
+    }
+  };
+
+  const handleFinalVote = (name: string, phone?: string) => {
+    if (selectedItem) {
+      onVote(selectedItem.id, name, phone);
       setHasVoted(true);
-      localStorage.setItem('has_voted', 'true');
+      setSelectedItem(null);
     }
   };
 
@@ -49,115 +72,113 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   const getGenreIcon = (genre: string) => {
     const g = genre.toLowerCase();
-    if (g.includes('reggaetón') || g.includes('regueton')) return <Disc className="text-[#0D0D0D] w-8 h-8 md:w-10 md:h-10" />;
-    if (g.includes('electrónica')) return <Activity className="text-[#0D0D0D] w-8 h-8 md:w-10 md:h-10" />;
-    if (g.includes('rock')) return <Mic2 className="text-[#0D0D0D] w-8 h-8 md:w-10 md:h-10" />;
-    if (g.includes('villera') || g.includes('cumbia')) return <Radio className="text-[#0D0D0D] w-8 h-8 md:w-10 md:h-10" />;
-    if (g.includes('salsa')) return <Music className="text-[#0D0D0D] w-8 h-8 md:w-10 md:h-10" />;
-    return <Music className="text-[#0D0D0D] w-8 h-8 md:w-10 md:h-10" />;
+    if (g.includes('reggaetón') || g.includes('regueton')) return <Disc className="text-black w-7 h-7" />;
+    if (g.includes('electrónica')) return <Activity className="text-black w-7 h-7" />;
+    if (g.includes('rock')) return <Mic2 className="text-black w-7 h-7" />;
+    if (g.includes('villera') || g.includes('cumbia')) return <Radio className="text-black w-7 h-7" />;
+    if (g.includes('salsa')) return <Music className="text-black w-7 h-7" />;
+    return <Music className="text-black w-7 h-7" />;
   };
 
   return (
-    <div className="max-w-screen-md mx-auto px-4 flex flex-col min-h-screen theme-transition bg-[#0D0D0D] pt-0">
-      {/* PANTALLA POST-VOTO (INSTAGRAM REDIRECT) */}
+    <div className="max-w-screen-md mx-auto px-4 flex flex-col min-h-[100dvh] bg-[#0D0D0D] pb-10 overflow-x-hidden relative">
+      {/* PANTALLA DE BLOQUEO POST-VOTO */}
       <PostVoteModal isVisible={hasVoted} />
 
-      {/* Botón Flotante de Tema */}
-      <button 
-        onClick={toggleTheme}
-        className="fixed top-3 right-3 z-[100] p-3 rounded-full bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-2xl active:scale-90 transition-all theme-transition"
+      {/* ACCESO RÁPIDO DJ (EL RAYO) */}
+      <Link 
+        to="/admin" 
+        className="fixed bottom-6 right-6 z-[80] p-4 bg-[#F2CB05] text-black rounded-full shadow-[0_10px_30px_rgba(242,203,5,0.4)] hover:scale-110 active:scale-95 transition-all group"
+        aria-label="Acceso DJ"
       >
-        {isDarkMode ? <Sun className="w-5 h-5 text-[#F2CB05]" /> : <Moon className="w-5 h-5 text-[#594302]" />}
-      </button>
+        <Zap className="w-6 h-6 fill-current animate-pulse group-hover:animate-none" />
+      </Link>
 
-      {/* HEADER COMPACTO PARA CELULAR */}
-      <header className="text-center mb-2 flex flex-col items-center pt-0 mt-[-15px] md:mt-[-40px] animate-in fade-in duration-1000">
-        <div className="relative group w-full flex justify-center pt-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[#F2CB05] blur-[70px] md:blur-[140px] opacity-30 md:opacity-40 rounded-full animate-pulse"></div>
-          <img 
-            src={DJ_LOGO} 
-            className="w-[90%] md:w-[115%] max-w-[320px] md:max-w-[750px] relative z-20 object-contain drop-shadow-[0_10px_30px_rgba(242,203,5,0.5)]" 
-            alt="DJ Peligro" 
-          />
+      {/* MODAL DE REGISTRO (PERSONAS) */}
+      {selectedItem && (
+        <VoteModal 
+          song={selectedItem} 
+          onClose={() => setSelectedItem(null)} 
+          onSubmit={handleFinalVote} 
+        />
+      )}
+
+      <header className="text-center pt-8 mb-4 animate-in fade-in duration-700">
+        <div className="relative w-full flex justify-center mb-4">
+          <img src={DJ_LOGO} className="w-40 md:w-64 object-contain drop-shadow-[0_0_25px_rgba(242,203,5,0.4)]" alt="DJ Peligro" />
         </div>
         
-        {/* Banner de Acción principal */}
-        <div className="relative z-30 mt-[-40px] md:mt-[-180px] w-full flex justify-center px-4">
-          <div className="inline-block bg-white text-[#0D0D0D] px-4 py-3 md:px-14 md:py-8 transform -skew-x-12 shadow-2xl border-r-[8px] border-b-[8px] md:border-r-[20px] md:border-b-[20px] border-[#F2CB05]">
-            <h2 className="text-base md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter leading-none whitespace-nowrap">
-              La próxima canción la eliges tú
-            </h2>
+        {/* BANNER GIGANTE ACTUALIZADO */}
+        <div className="inline-block bg-white text-black px-8 py-4 md:px-12 md:py-6 transform -skew-x-12 shadow-[0_15px_40px_-10px_rgba(242,203,5,0.4)] border-r-[6px] border-b-[6px] border-[#F2CB05] mb-10">
+          <h2 className="text-base md:text-3xl font-[900] uppercase italic tracking-tighter leading-none">
+            LA PRÓXIMA CANCIÓN LA ELIGES TÚ
+          </h2>
+        </div>
+
+        {/* Resumen Actualizado Real-time */}
+        <div className="bg-[#151515] border border-white/5 rounded-[2.5rem] p-6 flex items-center justify-around shadow-2xl mb-8">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1.5 text-[#F2CB05] font-black text-[10px] uppercase tracking-[0.3em] mb-1">
+              <Users className="w-3.5 h-3.5" /> PARTICIPANTES
+            </div>
+            <span className="text-3xl font-black italic tracking-tighter">{votes.length}</span>
+          </div>
+          <div className="h-12 w-px bg-white/10"></div>
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1.5 text-[#F2CB05] font-black text-[10px] uppercase tracking-[0.3em] mb-1">
+               <BarChart3 className="w-3.5 h-3.5" /> LÍDER ACTUAL
+            </div>
+            <span className="text-base font-black italic uppercase truncate max-w-[150px]">
+              {stats[0]?.count > 0 ? stats[0].name : "---"}
+            </span>
           </div>
         </div>
 
-        {/* CRONÓMETRO DE 6 MINUTOS */}
         {votingEndsAt && (
-          <div className="flex flex-col items-center gap-1.5 pt-4 md:pt-10 animate-in zoom-in duration-500">
-            {!isClosed && (
-              <div className="flex items-center gap-1 bg-[#F2CB05] text-[#0D0D0D] px-2 py-0.5 rounded-md font-black text-[7px] md:text-[8px] tracking-[0.3em] uppercase animate-pulse">
-                • VOTACIÓN ACTIVA (6 MINUTOS)
-              </div>
-            )}
-            <div className={`inline-flex items-center gap-2.5 px-6 py-2.5 rounded-2xl border-2 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl theme-transition ${isClosed ? 'bg-red-500 text-white border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white'}`}>
-              {isClosed ? <AlarmClockOff className="w-5 h-5" /> : <Timer className="w-5 h-5 animate-spin-slow text-[#F2CB05]" />}
-              <span className="text-2xl md:text-4xl font-black tracking-[0.2em] tabular-nums leading-none italic">
-                {isClosed ? 'CERRADO' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
-              </span>
-            </div>
+          <div className={`w-full flex items-center justify-center gap-3 py-5 rounded-[2rem] border-2 ${isClosed ? 'bg-red-500 border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white shadow-lg shadow-[#F2CB05]/10'}`}>
+            {!isClosed && <Timer className="w-6 h-6 animate-pulse text-[#F2CB05]" />}
+            <span className="text-2xl font-black tracking-[0.15em] italic">
+              {isClosed ? 'VOTACIÓN CERRADA' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
+            </span>
           </div>
         )}
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <main className="flex-grow space-y-4 animate-in slide-in-from-bottom-8 duration-1000 pt-2">
+      <main className="flex-grow space-y-4 px-1">
+        <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-6 opacity-50">
+          TOCA PARA VOTAR:
+        </p>
+        
         {mode === 'songs' ? (
-          <div className="space-y-3 pb-12">
-            <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-1 opacity-50">
-              TOCA PARA ELEGIR LA SIGUIENTE:
-            </p>
+          <div className="space-y-4">
             {songs.map(song => (
               <SongCard 
                 key={song.id} 
                 song={song} 
-                onClick={() => handleVoteAction(song.id)} 
+                onClick={() => handleInitiateVote(song.id, song.title, song.artist, song.coverUrl)} 
                 disabled={isClosed || hasVoted} 
-                isDarkMode={isDarkMode} 
               />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 pb-12">
-            <p className="text-center text-neutral-600 font-black uppercase text-[10px] tracking-[0.5em] mb-1 opacity-50">
-              ¿QUÉ GÉNERO QUIERES ESCUCHAR?
-            </p>
+          <div className="grid grid-cols-1 gap-4">
             {genres.map(g => (
               <button 
                 key={g} 
-                onClick={() => handleVoteAction(g)}
+                onClick={() => handleInitiateVote(g, g, 'DJ PELIGRO', 'https://picsum.photos/seed/genre/300/300')}
                 disabled={isClosed || hasVoted}
-                className={`group relative flex items-center justify-between p-7 md:p-10 rounded-[2.5rem] border-2 transition-all shadow-2xl active:scale-95 theme-transition overflow-hidden ${
-                  hasVoted || isClosed 
-                  ? 'bg-[#121212] border-transparent opacity-60 grayscale' 
-                  : 'bg-[var(--card-bg)] border-transparent hover:border-[#F2CB05]'
-                }`}
+                className="group relative flex items-center justify-between p-6 rounded-[2.5rem] border-2 transition-all active:scale-95 bg-[#1A1A1A] border-white/5 disabled:opacity-50 shadow-xl"
               >
-                <div className="flex items-center gap-6 relative z-10">
-                  <div className={`p-5 rounded-2xl transition-all duration-500 shadow-xl ${hasVoted || isClosed ? 'bg-neutral-800 shadow-none' : 'bg-[#F2CB05] group-hover:rotate-12 shadow-[#F2CB05]/30'}`}>
+                <div className="flex items-center gap-6">
+                  <div className="p-5 rounded-2xl bg-[#F2CB05] shadow-lg shadow-[#F2CB05]/20">
                     {getGenreIcon(g)}
                   </div>
-                  <span className={`text-2xl md:text-5xl font-black italic uppercase tracking-tighter transition-colors ${hasVoted || isClosed ? 'text-neutral-500' : 'group-hover:text-[#F2B705] text-white'}`}>{g}</span>
+                  <span className="text-2xl font-[900] italic uppercase tracking-tighter text-white">
+                    {g}
+                  </span>
                 </div>
-                
-                <div className={`font-black px-8 py-5 rounded-2xl italic text-xs md:text-sm transition-all flex items-center gap-3 ${
-                  hasVoted || isClosed 
-                  ? 'bg-transparent text-neutral-600 border border-neutral-800' 
-                  : 'bg-[#F2CB05] text-[#0D0D0D] md:opacity-0 md:group-hover:opacity-100'
-                }`}>
-                  {hasVoted || isClosed ? (
-                    <>REGISTRADO <Heart className="w-5 h-5 fill-current text-red-500" /></>
-                  ) : (
-                    <>VOTAR <Music className="w-4 h-4" /></>
-                  )}
+                <div className="font-black px-8 py-5 rounded-2xl italic text-sm bg-white text-black shadow-lg">
+                  VOTAR
                 </div>
               </button>
             ))}
@@ -165,38 +186,11 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </main>
 
-      {/* FOOTER */}
-      <footer className="mt-12 py-20 text-center border-t border-[var(--border-color)] space-y-12 theme-transition">
-        <div className="flex flex-col items-center">
-          <p className="text-neutral-500 text-[10px] font-black uppercase tracking-[0.6em] mb-4">PANEL EXCLUSIVO • DJ PELIGRO</p>
-          <div className="flex gap-2">
-            <div className="w-2 h-2 bg-[#F2CB05] rounded-full"></div>
-            <div className="w-20 h-2 bg-[#F2CB05] rounded-full"></div>
-            <div className="w-2 h-2 bg-[#F2CB05] rounded-full"></div>
-          </div>
-        </div>
-
-        <div className="flex justify-center items-center gap-14">
-          <a href="https://www.instagram.com/djpeligroperu" target="_blank" className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300">
-            <Instagram className="w-10 h-10" />
-          </a>
-          <a href="https://www.tiktok.com/@djpeligro" target="_blank" className="text-white hover:text-[#F2CB05] transform hover:scale-125 transition-all duration-300">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/>
-            </svg>
-          </a>
-        </div>
-
-        <div className="flex justify-center opacity-10">
-          <Link to="/admin" className="p-4 hover:opacity-100 transition-opacity">
-            <img src={RAYO_LOGO} alt="DJ" className="w-12 h-12 object-contain" />
-          </Link>
-        </div>
-
-        <div className="pt-24 pb-12">
-          <p className="text-[9px] text-neutral-800 font-black uppercase tracking-[0.5em]">
-            &copy; 2024 PELIGRO EDITION • VOTE FLOW SYSTEM
-          </p>
+      <footer className="mt-16 py-12 text-center border-t border-white/5 opacity-30">
+        <p className="text-[10px] font-black uppercase tracking-[1em] mb-6">DJ PELIGRO • ID SYSTEM</p>
+        <div className="flex justify-center gap-8">
+           <Instagram className="w-6 h-6" />
+           <Music className="w-6 h-6" />
         </div>
       </footer>
     </div>

@@ -10,9 +10,10 @@ export type VotingMode = 'songs' | 'genres';
 
 export interface Vote {
   id: string;
-  targetId: string; // Puede ser un songId o el nombre del género
-  voterName: string;
-  whatsapp?: string;
+  targetId: string; 
+  voterId: string; 
+  voterName?: string;
+  voterPhone?: string;
   timestamp: number;
 }
 

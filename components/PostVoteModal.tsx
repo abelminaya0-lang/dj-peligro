@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Instagram, ExternalLink, Zap, Trophy } from 'lucide-react';
+import { Instagram, ExternalLink, Trophy } from 'lucide-react';
 
 interface PostVoteModalProps {
   isVisible: boolean;
@@ -12,7 +12,7 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
 
   return (
-    <div className="fixed inset-0 z-[500] bg-[#000000] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
+    <div className="fixed inset-0 z-[999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
       {/* Luz de fondo sutil para profundidad */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#F2CB05]/5 blur-[120px] rounded-full"></div>
@@ -31,7 +31,7 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
           </div>
         </div>
 
-        {/* MENSAJES DE IMPACTO */}
+        {/* MENSAJES DE IMPACTO - REGRESO AL AMARILLO */}
         <div className="space-y-6">
           <div className="space-y-3">
             <h2 className="text-[#F2CB05] font-black italic text-3xl md:text-5xl uppercase tracking-tighter leading-none animate-in slide-in-from-top-4 duration-700 delay-200">
@@ -49,7 +49,7 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
                 RANKING LIVE
               </p>
             </div>
-            <p className="text-neutral-400 font-bold text-[11px] md:text-xs uppercase tracking-[0.4em] leading-relaxed mx-auto max-w-[280px]">
+            <p className="text-neutral-400 font-bold text-[10px] md:text-xs uppercase tracking-[0.4em] leading-relaxed mx-auto max-w-[280px]">
               MIRA AHORA MISMO QUIÉN VA GANANDO EN MI INSTAGRAM OFICIAL
             </p>
           </div>
@@ -61,11 +61,8 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
             href="https://www.instagram.com/djpeligroperu" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="group relative flex items-center justify-center gap-5 bg-white text-black px-8 py-7 rounded-[2rem] font-black text-sm md:text-base uppercase italic tracking-[0.15em] shadow-[0_25px_60px_-10px_rgba(255,255,255,0.25)] hover:scale-[1.03] active:scale-95 transition-all w-full overflow-hidden"
+            className="group relative flex items-center justify-center gap-5 bg-white text-black px-8 py-7 rounded-[2.2rem] font-black text-sm md:text-base uppercase italic tracking-[0.15em] shadow-[0_25px_60px_-10px_rgba(255,255,255,0.25)] hover:scale-[1.03] active:scale-95 transition-all w-full overflow-hidden"
           >
-            {/* Efecto de brillo interior */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] opacity-0 group-hover:opacity-10 transition-opacity"></div>
-            
             <div className="p-2 bg-black rounded-xl">
               <Instagram className="w-6 h-6 text-white" />
             </div>

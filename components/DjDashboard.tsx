@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
-import { LogOut, RotateCcw, BarChart3, Home, Timer, Play, Square, Save, Music, Disc, Radio, Activity, Sun, Moon, Mic2, Zap, Trophy } from 'lucide-react';
+import { LogOut, RotateCcw, BarChart3, Home, Timer, Play, Square, Save, Music, Disc, Radio, Activity, Sun, Moon, Mic2, Zap, Trophy, QrCode, Share2, Download, Copy, Check } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface DjDashboardProps {
   activeMode: VotingMode;
@@ -27,8 +28,13 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
   const [editMode, setEditMode] = useState<VotingMode>(activeMode);
   const [editSongs, setEditSongs] = useState<Song[]>(activeSongs);
   const [editGenres, setEditGenres] = useState<string[]>(activeGenres);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
+  
+  // URL para el código QR (Página principal)
+  const publicUrl = window.location.origin + window.location.pathname + '#/';
 
   useEffect(() => {
     if (!votingEndsAt) { setTimeLeft(null); return; }
@@ -59,6 +65,12 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(publicUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const stats = useMemo(() => {
     const total = votes.length;
     const items = activeMode === 'songs' ? activeSongs.map(s => s.title) : activeGenres;
@@ -73,6 +85,58 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 theme-transition">
+      {/* QR MODAL - IMPACTO VISUAL */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-[#1A1A1A] border-4 border-[#F2CB05] p-8 md:p-12 rounded-[4rem] flex flex-col items-center max-w-lg w-full text-center relative shadow-[0_0_100px_rgba(242,203,5,0.2)]">
+            <button 
+              onClick={() => setShowQrModal(false)}
+              className="absolute top-6 right-6 p-4 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors"
+            >
+              <Share2 className="w-6 h-6 rotate-180" />
+            </button>
+            
+            <img src={DJ_LOGO} className="w-32 mb-8 drop-shadow-[0_0_20px_#F2CB05]" alt="DJ Peligro" />
+            
+            <h2 className="text-3xl font-black italic uppercase text-[#F2CB05] mb-2">ESCANEA Y VOTA</h2>
+            <p className="text-neutral-500 font-bold text-[10px] uppercase tracking-[0.4em] mb-10">Muestra este código en las pantallas</p>
+            
+            <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] mb-10">
+              <QRCodeSVG 
+                value={publicUrl} 
+                size={220} 
+                level="H" 
+                includeMargin={false}
+                imageSettings={{
+                  src: DJ_LOGO,
+                  x: undefined,
+                  y: undefined,
+                  height: 40,
+                  width: 40,
+                  excavate: true,
+                }}
+              />
+            </div>
+
+            <div className="flex gap-4 w-full">
+               <button 
+                onClick={copyToClipboard}
+                className="flex-grow flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:border-[#F2CB05] text-white py-4 rounded-2xl font-black text-xs uppercase italic tracking-widest transition-all"
+               >
+                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                 {copied ? 'COPIADO' : 'COPIAR LINK'}
+               </button>
+               <button 
+                className="flex-grow flex items-center justify-center gap-2 bg-[#F2CB05] text-black py-4 rounded-2xl font-black text-xs uppercase italic tracking-widest transition-all hover:scale-105"
+                onClick={() => window.print()}
+               >
+                 <Download className="w-4 h-4" /> IMPRIMIR
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 1. HEADER PRINCIPAL */}
       <header className="flex flex-col lg:flex-row justify-between items-center bg-[var(--card-bg)] p-6 md:p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-xl theme-transition gap-6">
         <div className="flex items-center gap-5">
@@ -84,6 +148,12 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
         </div>
         
         <div className="flex flex-wrap items-center justify-center gap-3">
+          <button 
+            onClick={() => setShowQrModal(true)}
+            className="flex items-center gap-3 px-8 py-4 bg-[#F2CB05] text-black rounded-xl font-black text-xs hover:scale-110 transition-all shadow-lg shadow-[#F2CB05]/20 uppercase tracking-widest italic"
+          >
+            <QrCode className="w-5 h-5" /> MOSTRAR QR
+          </button>
           <button onClick={toggleTheme} className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] hover:scale-105 transition-all">
             {isDarkMode ? <Sun className="w-5 h-5 text-[#F2CB05]" /> : <Moon className="w-5 h-5 text-[#594302]" />}
           </button>
@@ -193,7 +263,6 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                   className={`h-full transition-all duration-1000 ease-out shadow-[0_0_20px_-2px_currentColor] ${i === 0 ? 'bg-[#F2CB05] text-[#F2CB05]' : 'bg-neutral-600 text-neutral-600 opacity-60'}`}
                   style={{ width: `${s.percentage}%` }}
                 ></div>
-                {/* Indicador de carga sutil */}
                 {votingEndsAt && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent w-full h-full -translate-x-full animate-[shimmer_2s_infinite]"></div>
                 )}
