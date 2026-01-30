@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
-import { LogOut, Play, Square, Save, Disc, Zap, Monitor, Edit3, Trash2 } from 'lucide-react';
+import { LogOut, Play, Square, Save, Disc, Zap, Monitor, Trash2, Users, Trophy } from 'lucide-react';
 
 interface DjDashboardProps {
   activeMode: VotingMode;
@@ -15,28 +15,33 @@ interface DjDashboardProps {
   votingEndsAt: number | null;
   onStartVoting: (minutes: number) => void;
   onStopVoting: () => void;
-  // Added missing props to match App.tsx usage
   isDarkMode: boolean;
   toggleTheme: () => void;
 }
 
 const DjDashboard: React.FC<DjDashboardProps> = ({ 
   activeMode, activeSongs, activeGenres, votes, onReset, onLogout, 
-  onUpdateSession, votingEndsAt, onStartVoting, onStopVoting,
-  // Destructuring added props
-  isDarkMode, toggleTheme
+  onUpdateSession, votingEndsAt, onStartVoting, onStopVoting 
 }) => {
   const [editMode, setEditMode] = useState<VotingMode>(activeMode);
-  
-  // 5 espacios para canciones
   const [songInputs, setSongInputs] = useState<string[]>(() => {
     const titles = activeSongs.map(s => s.title);
     while(titles.length < 5) titles.push('');
     return titles.slice(0, 5);
   });
 
-  const FIXED_GENRES = ['Salsa', 'Rock', 'Merengue', 'Electrónica', 'Reguetón'];
+  const FIXED_GENRES = ['Reguetón', 'Salsa', 'Rock', 'Merengue', 'Electrónica'];
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
+
+  const leader = useMemo(() => {
+    if (votes.length === 0) return null;
+    const items = activeMode === 'songs' ? activeSongs.map(s => s.id) : activeGenres;
+    const counts = items.map(id => ({ id, count: votes.filter(v => v.targetId === id).length }));
+    const sorted = counts.sort((a, b) => b.count - a.count);
+    const winId = sorted[0].id;
+    if (activeMode === 'songs') return activeSongs.find(s => s.id === winId)?.title || '...';
+    return winId;
+  }, [votes, activeSongs, activeGenres, activeMode]);
 
   const handleSave = () => {
     const newSongs: Song[] = songInputs
@@ -47,110 +52,122 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
         artist: 'DJ PELIGRO',
         coverUrl: `https://picsum.photos/seed/${title}/300/300`
       }));
-
-    if (newSongs.length === 0 && editMode === 'songs') {
-      alert('Escribe al menos una canción');
-      return;
-    }
-
     onUpdateSession(editMode, newSongs, FIXED_GENRES);
-    alert('¡PUBLICADO! Todos los celulares están actualizados.');
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-2 py-2 bg-[#0D0D0D] min-h-screen text-white font-sans">
-      {/* HEADER COMPACTO */}
-      <header className="flex justify-between items-center bg-[#1A1A1A] p-3 rounded-xl border border-white/5 mb-1">
-        <div className="flex items-center gap-3">
-          <img src={DJ_LOGO} className="w-12 h-12 object-contain" alt="DJ Peligro" />
-          <h1 className="text-lg font-black italic tracking-tighter uppercase">PANEL <span className="text-[#F2CB05]">PELIGRO</span></h1>
+    <div className="max-w-6xl mx-auto px-3 py-4 bg-black min-h-screen text-white flex flex-col gap-4">
+      {/* BARRA SUPERIOR PRO */}
+      <header className="flex justify-between items-center bg-[#111] p-4 rounded-2xl border border-white/5 shadow-2xl">
+        <div className="flex items-center gap-4">
+          <img src={DJ_LOGO} className="w-16 h-16 object-contain" alt="DJ Peligro" />
+          <div>
+            <h1 className="text-xl font-black italic tracking-tighter uppercase leading-none">VOTE SYSTEM <span className="text-[#F2CB05]">PRO</span></h1>
+            <p className="text-[9px] font-black text-white/30 tracking-[0.3em] mt-1">OPERACIÓN EN VIVO</p>
+          </div>
         </div>
-        <div className="flex gap-1">
-          <Link to="/results" target="_blank" className="p-2 bg-white text-black rounded-lg font-black text-[9px] uppercase italic flex items-center gap-1">
-            <Monitor className="w-3 h-3" /> PANTALLA
+        <div className="flex gap-2">
+          <Link to="/results" target="_blank" className="px-6 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic flex items-center gap-2 hover:bg-[#F2CB05] transition-colors shadow-lg">
+            <Monitor className="w-4 h-4" /> PANTALLA PÚBLICA
           </Link>
-          <button onClick={onLogout} className="p-2 bg-red-600 text-white rounded-lg font-black text-[9px] uppercase italic">SALIR</button>
+          <button onClick={onLogout} className="px-6 py-3 bg-red-600/10 text-red-500 border border-red-500/20 rounded-xl font-black text-xs uppercase italic hover:bg-red-600 hover:text-white transition-all">SALIR</button>
         </div>
       </header>
 
-      {/* CONFIGURACIÓN "AL ROSE" */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-        {/* COLUMNA IZQUIERDA: MODO Y TIEMPO */}
-        <div className="md:col-span-1 space-y-1">
-          <div className="bg-[#1A1A1A] p-4 rounded-xl border border-white/5">
-            <p className="text-[8px] font-black text-[#F2CB05] uppercase tracking-[0.3em] mb-2">1. ELEGIR MODO</p>
-            <div className="grid grid-cols-2 gap-1 bg-black p-1 rounded-lg">
-              <button 
-                onClick={() => setEditMode('songs')}
-                className={`py-3 rounded-md font-black text-[9px] uppercase italic ${editMode === 'songs' ? 'bg-[#F2CB05] text-black' : 'text-neutral-600'}`}
-              >
-                CANCIONES
-              </button>
-              <button 
-                onClick={() => setEditMode('genres')}
-                className={`py-3 rounded-md font-black text-[9px] uppercase italic ${editMode === 'genres' ? 'bg-[#F2CB05] text-black' : 'text-neutral-600'}`}
-              >
-                GÉNEROS
-              </button>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* MONITOR DE ESTADÍSTICAS (IZQUIERDA) */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="bg-[#111] p-6 rounded-3xl border border-[#F2CB05]/20 shadow-2xl">
+            <div className="flex justify-between items-start mb-6">
+              <span className="bg-[#F2CB05] text-black px-3 py-1 rounded-lg font-black text-[10px] italic uppercase">En Vivo</span>
+              <div className="flex items-center gap-2 text-white/40">
+                <Users className="w-4 h-4" />
+                <span className="font-black text-sm">{votes.length} Votos</span>
+              </div>
+            </div>
+            
+            <div className="mb-8">
+              <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Líder Actual</p>
+              <h2 className="text-4xl font-black italic text-[#F2CB05] uppercase tracking-tighter truncate leading-none">
+                {leader || "SIN VOTOS"}
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              { (activeMode === 'songs' ? activeSongs : activeGenres).map((item, i) => {
+                const id = typeof item === 'string' ? item : item.id;
+                const name = typeof item === 'string' ? item : item.title;
+                const count = votes.filter(v => v.targetId === id).length;
+                const pct = votes.length > 0 ? (count / votes.length) * 100 : 0;
+                return (
+                  <div key={id} className="space-y-1.5">
+                    <div className="flex justify-between text-[11px] font-black uppercase italic">
+                      <span className="text-white/80">{name}</span>
+                      <span className="text-[#F2CB05]">{count}</span>
+                    </div>
+                    <div className="h-2 bg-black rounded-full overflow-hidden border border-white/5">
+                      <div className="h-full bg-[#F2CB05] shadow-[0_0_10px_#F2CB05]" style={{ width: `${pct}%` }}></div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#F2CB05]/20">
-            <p className="text-[8px] font-black text-[#F2CB05] uppercase tracking-[0.3em] mb-2">2. TIEMPO DE VOTACIÓN</p>
+          <div className="bg-[#111] p-6 rounded-3xl border border-white/5">
+            <p className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest mb-4">Control de Tiempo</p>
             {!votingEndsAt ? (
-              <button onClick={() => onStartVoting(5)} className="w-full bg-[#F2CB05] text-black py-4 rounded-lg font-black text-xs uppercase italic flex items-center justify-center gap-2">
-                <Play className="w-4 h-4 fill-current" /> ABRIR (5 MIN)
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => onStartVoting(3)} className="bg-white text-black py-4 rounded-2xl font-black text-xs italic uppercase hover:bg-[#F2CB05] transition-all">3 MIN</button>
+                <button onClick={() => onStartVoting(5)} className="bg-white text-black py-4 rounded-2xl font-black text-xs italic uppercase hover:bg-[#F2CB05] transition-all">5 MIN</button>
+              </div>
             ) : (
-              <button onClick={onStopVoting} className="w-full bg-red-600 text-white py-4 rounded-lg font-black text-xs uppercase italic flex items-center justify-center gap-2">
-                <Square className="w-4 h-4 fill-current" /> CERRAR AHORA
+              <button onClick={onStopVoting} className="w-full bg-red-600 text-white py-6 rounded-2xl font-black text-xl italic uppercase flex items-center justify-center gap-3 animate-pulse shadow-2xl">
+                <Square className="w-6 h-6 fill-current" /> CERRAR VOTOS
               </button>
             )}
-            <button onClick={onReset} className="w-full mt-1 bg-white/5 text-neutral-500 py-2 rounded-lg font-black text-[8px] uppercase tracking-widest">
-              LIMPIAR VOTOS
-            </button>
+            <button onClick={onReset} className="w-full mt-4 py-3 bg-white/5 rounded-xl text-[10px] font-black text-white/20 uppercase tracking-[0.3em] hover:text-red-500 transition-colors">Resetear sesión</button>
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: ENTRADA DE CANCIONES */}
-        <div className="md:col-span-2 bg-[#1A1A1A] p-4 rounded-xl border border-white/5 flex flex-col justify-between">
-          <div>
-            <p className="text-[8px] font-black text-[#F2CB05] uppercase tracking-[0.3em] mb-3">3. EDITAR CONTENIDO (MAX 5)</p>
-            
+        {/* EDITOR DE CONTENIDO (DERECHA) */}
+        <div className="lg:col-span-8 bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col gap-6">
+          <div className="flex justify-between items-end">
+            <div>
+              <p className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest mb-1">Editor de Turno</p>
+              <h3 className="text-3xl font-black italic text-white uppercase tracking-tighter">Preparar Siguiente Votación</h3>
+            </div>
+            <div className="flex bg-black p-1.5 rounded-2xl gap-1">
+              <button onClick={() => setEditMode('songs')} className={`px-6 py-2.5 rounded-xl font-black text-xs italic uppercase transition-all ${editMode === 'songs' ? 'bg-[#F2CB05] text-black shadow-lg' : 'text-white/40'}`}>Canciones</button>
+              <button onClick={() => setEditMode('genres')} className={`px-6 py-2.5 rounded-xl font-black text-xs italic uppercase transition-all ${editMode === 'genres' ? 'bg-[#F2CB05] text-black shadow-lg' : 'text-white/40'}`}>Géneros</button>
+            </div>
+          </div>
+
+          <div className="flex-grow space-y-2">
             {editMode === 'songs' ? (
-              <div className="space-y-1">
-                {songInputs.map((song, i) => (
-                  <div key={i} className="flex gap-1">
-                    <div className="bg-black px-3 flex items-center justify-center text-[10px] font-black text-[#F2CB05] italic rounded-lg">0{i+1}</div>
-                    <input 
-                      type="text" 
-                      placeholder="Escribe el nombre de la canción aquí..."
-                      value={song}
-                      onChange={(e) => {
-                        const next = [...songInputs];
-                        next[i] = e.target.value;
-                        setSongInputs(next);
-                      }}
-                      className="flex-grow bg-[#0D0D0D] border border-white/5 rounded-lg px-4 py-3 text-sm font-bold text-white focus:border-[#F2CB05] outline-none"
-                    />
-                    {song && (
-                      <button onClick={() => {
-                        const next = [...songInputs];
-                        next[i] = '';
-                        setSongInputs(next);
-                      }} className="bg-white/5 p-3 rounded-lg text-neutral-600 hover:text-red-500">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
+              songInputs.map((song, i) => (
+                <div key={i} className="flex gap-2 group">
+                  <div className="w-12 h-14 flex items-center justify-center bg-black border border-white/10 rounded-2xl text-[#F2CB05] font-black italic">{i+1}</div>
+                  <input 
+                    type="text" 
+                    placeholder="Escribe el nombre del track..." 
+                    value={song}
+                    onChange={(e) => { const n = [...songInputs]; n[i] = e.target.value; setSongInputs(n); }}
+                    className="flex-grow bg-[#050505] border border-white/10 rounded-2xl px-6 font-bold text-white focus:border-[#F2CB05] outline-none transition-all placeholder:text-white/10"
+                  />
+                  {song && (
+                    <button onClick={() => { const n = [...songInputs]; n[i] = ''; setSongInputs(n); }} className="w-14 h-14 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              ))
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-4 h-full content-start">
                 {FIXED_GENRES.map(g => (
-                  <div key={g} className="bg-black/50 border border-[#F2CB05]/20 p-4 rounded-xl flex items-center gap-3">
-                    <Disc className="w-4 h-4 text-[#F2CB05]" />
-                    <span className="font-black italic uppercase text-xs">{g}</span>
+                  <div key={g} className="bg-black/40 p-6 rounded-3xl border border-[#F2CB05]/10 flex items-center gap-4">
+                    <div className="p-3 bg-[#F2CB05] rounded-xl text-black"><Disc className="w-6 h-6" /></div>
+                    <span className="text-xl font-black italic uppercase text-white">{g}</span>
                   </div>
                 ))}
               </div>
@@ -159,32 +176,10 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
           <button 
             onClick={handleSave}
-            className="mt-4 w-full bg-white text-black py-5 rounded-xl font-black text-sm uppercase italic tracking-[0.2em] hover:bg-[#F2CB05] transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full bg-white text-black py-8 rounded-3xl font-black text-2xl italic uppercase tracking-tighter hover:bg-[#F2CB05] transition-all shadow-[0_20px_40px_rgba(242,203,5,0.2)] flex items-center justify-center gap-4"
           >
-            <Save className="w-5 h-5" /> GUARDAR Y PUBLICAR EN TODOS LOS CELULARES
+            <Save className="w-8 h-8" /> PUBLICAR AHORA EN TODOS LOS MÓVILES
           </button>
-        </div>
-      </div>
-
-      {/* MONITOR DE VOTOS RÁPIDO */}
-      <div className="mt-1 bg-[#1A1A1A] p-3 rounded-xl border border-white/5">
-        <div className="flex justify-between items-center mb-2 px-2">
-          <span className="text-[10px] font-black uppercase italic tracking-widest text-neutral-500">MONITOR EN VIVO</span>
-          <span className="text-[10px] font-black text-[#F2CB05]">{votes.length} VOTOS</span>
-        </div>
-        <div className="grid grid-cols-5 gap-1">
-          {songInputs.filter(s => s !== '').map((s, i) => {
-            const count = votes.filter(v => v.targetId.includes(i.toString())).length;
-            const pct = votes.length > 0 ? (count / votes.length) * 100 : 0;
-            return (
-              <div key={i} className="bg-black rounded-lg p-2 border border-white/5">
-                <p className="text-[8px] font-black text-white truncate uppercase mb-1">{s}</p>
-                <div className="h-1 bg-white/5 rounded-full">
-                  <div className="h-full bg-[#F2CB05]" style={{ width: `${pct}%` }}></div>
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>
