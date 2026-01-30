@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import { 
@@ -15,8 +15,11 @@ import {
   Activity, 
   Clock,
   History,
-  TrendingUp
+  TrendingUp,
+  QrCode,
+  ExternalLink
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface DjDashboardProps {
   activeMode: VotingMode;
@@ -46,6 +49,9 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
   const FIXED_GENRES = ['Reguetón', 'Salsa', 'Rock', 'Merengue', 'Electrónica'];
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
+  
+  // URL de la web principal para el QR
+  const publicUrl = window.location.origin + window.location.pathname + '#/';
 
   // Estadísticas en tiempo real
   const stats = useMemo(() => {
@@ -60,8 +66,6 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
     }).sort((a, b) => b.count - a.count);
   }, [votes, activeSongs, activeGenres, activeMode]);
 
-  const leader = stats[0]?.count > 0 ? stats[0] : null;
-
   const handleSave = () => {
     const newSongs: Song[] = songInputs
       .filter(t => t.trim() !== '')
@@ -74,9 +78,8 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
     onUpdateSession(editMode, newSongs, FIXED_GENRES);
   };
 
-  // Obtener los últimos 5 votos para el feed "espontáneo"
   const recentVotes = useMemo(() => {
-    return [...votes].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6);
+    return [...votes].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
   }, [votes]);
 
   return (
@@ -100,8 +103,8 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-end mr-4">
-            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">DISPOSITIVOS CONECTADOS</span>
-            <span className="text-xl font-black text-white italic">142</span>
+            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">URL PÚBLICA</span>
+            <span className="text-xs font-bold text-[#F2CB05] lowercase truncate max-w-[200px]">{publicUrl}</span>
           </div>
           <Link to="/results" target="_blank" className="px-6 py-4 bg-white text-black rounded-2xl font-black text-xs uppercase italic flex items-center gap-2 hover:bg-[#F2CB05] transition-all shadow-xl active:scale-95">
             <Monitor className="w-4 h-4" /> PANTALLA PÚBLICA
@@ -113,90 +116,85 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow">
-        {/* COLUMNA IZQUIERDA: RESULTADOS ESPONTÁNEOS */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          {/* MONITOR PRINCIPAL DE VOTACIÓN */}
-          <section className="bg-[#111] p-6 rounded-[2rem] border border-[#F2CB05]/20 shadow-2xl relative overflow-hidden flex flex-col">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-              <Trophy className="w-32 h-32 text-[#F2CB05]" />
-            </div>
-
-            <div className="flex justify-between items-center mb-8 relative z-10">
+        {/* COLUMNA IZQUIERDA */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
+          
+          {/* CÓDIGO QR DINÁMICO */}
+          <section className="bg-[#111] p-6 rounded-[2rem] border border-[#F2CB05]/30 shadow-[0_0_30px_rgba(242,203,5,0.1)] flex flex-col items-center">
+            <div className="w-full flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#F2CB05]" />
-                <h2 className="text-sm font-black uppercase italic tracking-widest">Resultados en Vivo</h2>
+                <QrCode className="w-4 h-4 text-[#F2CB05]" />
+                <h2 className="text-[10px] font-black uppercase tracking-widest">Acceso Votantes</h2>
               </div>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
-                <Users className="w-4 h-4 text-[#F2CB05]" />
-                <span className="font-black text-lg tabular-nums">{votes.length} <span className="text-[10px] text-white/40 ml-1">VOTOS</span></span>
+              <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-[#F2CB05] transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+            
+            <div className="bg-white p-3 rounded-2xl mb-4 shadow-2xl">
+              <QRCodeSVG value={publicUrl} size={180} level="H" includeMargin={false} />
+            </div>
+            
+            <div className="text-center">
+              <p className="text-[9px] font-black text-[#F2CB05] uppercase tracking-[0.4em] mb-1">ESCANEA PARA VOTAR</p>
+              <p className="text-[8px] font-bold text-white/20 uppercase">Envía este código a tus fans</p>
+            </div>
+          </section>
+
+          {/* MONITOR DE RESULTADOS */}
+          <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5 shadow-2xl flex-grow overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-[#F2CB05]" />
+                <h2 className="text-[10px] font-black uppercase tracking-widest">Monitor Real-time</h2>
               </div>
+              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{votes.length} Votos</span>
             </div>
 
-            <div className="flex-grow space-y-5 relative z-10">
+            <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
               {stats.map((s, i) => (
-                <div key={s.id} className={`group p-4 rounded-2xl transition-all ${i === 0 && s.count > 0 ? 'bg-[#F2CB05]/5 border border-[#F2CB05]/20 shadow-inner' : 'bg-black/20 border border-white/5'}`}>
-                  <div className="flex justify-between items-end mb-2.5">
-                    <div className="flex items-center gap-4">
-                      <span className={`text-2xl font-black italic ${i === 0 && s.count > 0 ? 'text-[#F2CB05]' : 'text-white/20'}`}>0{i+1}</span>
-                      <span className={`text-xl font-black italic uppercase tracking-tighter truncate max-w-[200px] ${i === 0 && s.count > 0 ? 'text-white' : 'text-white/60'}`}>{s.name}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-2xl font-black italic text-[#F2CB05] leading-none">{Math.round(s.percentage)}%</span>
-                      <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mt-1">{s.count} VOTOS</p>
-                    </div>
+                <div key={s.id} className="space-y-1.5">
+                  <div className="flex justify-between text-[11px] font-black uppercase italic">
+                    <span className={i === 0 && s.count > 0 ? 'text-white' : 'text-white/40'}>{s.name}</span>
+                    <span className="text-[#F2CB05]">{s.count}</span>
                   </div>
-                  <div className="h-2.5 bg-black rounded-full overflow-hidden border border-white/5">
+                  <div className="h-2 bg-black rounded-full overflow-hidden border border-white/5">
                     <div 
-                      className={`h-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(242,203,5,0.3)] ${i === 0 && s.count > 0 ? 'bg-[#F2CB05]' : 'bg-white/10'}`} 
+                      className={`h-full transition-all duration-700 ${i === 0 && s.count > 0 ? 'bg-[#F2CB05] shadow-[0_0_10px_#F2CB05]' : 'bg-white/10'}`} 
                       style={{ width: `${s.percentage}%` }}
                     ></div>
                   </div>
                 </div>
               ))}
-              {stats.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 opacity-20">
-                  <Disc className="w-16 h-16 animate-spin-slow mb-4" />
-                  <p className="font-black italic uppercase tracking-widest">Esperando inicio de sesión</p>
-                </div>
-              )}
             </div>
           </section>
 
-          {/* FEED DE ACTIVIDAD RECIENTE */}
-          <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5 flex-grow">
-            <div className="flex items-center gap-2 mb-6">
-              <History className="w-4 h-4 text-white/40" />
-              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Actividad Reciente</h2>
-            </div>
-            <div className="space-y-3">
+          {/* ACTIVIDAD RECIENTE */}
+          <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-4 flex items-center gap-2">
+              <History className="w-3 h-3" /> Actividad
+            </h2>
+            <div className="space-y-2">
               {recentVotes.map((v) => (
-                <div key={v.id} className="flex items-center justify-between p-3 bg-black/30 rounded-xl border border-white/5 animate-in fade-in slide-in-from-left-2">
+                <div key={v.id} className="flex items-center justify-between p-2.5 bg-black/30 rounded-xl border border-white/5">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#F2CB05]/10 flex items-center justify-center text-[#F2CB05]">
-                      <Users className="w-4 h-4" />
-                    </div>
+                    <Users className="w-3 h-3 text-[#F2CB05]" />
                     <div>
-                      <p className="text-[11px] font-black uppercase text-white leading-none">{v.voterName || 'Anónimo'}</p>
-                      <p className="text-[9px] font-bold text-[#F2CB05] uppercase mt-1">Votó por {
-                        activeMode === 'songs' 
-                          ? activeSongs.find(s => s.id === v.targetId)?.title || '...' 
-                          : v.targetId
+                      <p className="text-[10px] font-black uppercase text-white leading-none">{v.voterName || 'Anónimo'}</p>
+                      <p className="text-[8px] font-bold text-[#F2CB05]/60 uppercase mt-0.5">Votó por {
+                        activeMode === 'songs' ? activeSongs.find(s => s.id === v.targetId)?.title || '...' : v.targetId
                       }</p>
                     </div>
                   </div>
-                  <span className="text-[9px] font-black text-white/20 uppercase italic">Hace instantes</span>
+                  <span className="text-[8px] font-black text-white/10 uppercase italic">LIVE</span>
                 </div>
               ))}
-              {recentVotes.length === 0 && (
-                <p className="text-center py-10 text-[10px] font-black text-white/10 uppercase tracking-widest">Sin actividad reciente</p>
-              )}
             </div>
           </section>
         </div>
 
-        {/* COLUMNA DERECHA: CONFIGURACIÓN Y CONTROLES */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-          {/* EDITOR DE VOTACIÓN */}
+        {/* COLUMNA DERECHA */}
+        <div className="lg:col-span-8 flex flex-col gap-4">
           <section className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col gap-6">
             <div className="flex justify-between items-end">
               <div>
@@ -228,7 +226,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                     </div>
                     <input 
                       type="text" 
-                      placeholder="Nombre del track para la pista..." 
+                      placeholder="Nombre del track..." 
                       value={song}
                       onChange={(e) => { const n = [...songInputs]; n[i] = e.target.value; setSongInputs(n); }}
                       className="flex-grow bg-[#050505] border border-white/10 rounded-2xl px-6 font-bold text-white focus:border-[#F2CB05] focus:bg-[#0A0A0A] outline-none transition-all placeholder:text-white/10 text-lg shadow-inner"
@@ -241,7 +239,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                   </div>
                 ))
               ) : (
-                <div className="grid grid-cols-2 gap-4 h-full content-start animate-in zoom-in-95 duration-500">
+                <div className="grid grid-cols-2 gap-4 h-full content-start">
                   {FIXED_GENRES.map((g, i) => (
                     <div key={g} className="bg-black/40 p-6 rounded-[2rem] border border-[#F2CB05]/10 flex items-center gap-5 group hover:border-[#F2CB05]/40 transition-all">
                       <div className="p-4 bg-[#F2CB05] rounded-2xl text-black shadow-lg group-hover:rotate-6 transition-transform">
@@ -249,7 +247,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                       </div>
                       <div>
                         <span className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{g}</span>
-                        <p className="text-[9px] font-black text-white/20 mt-1 uppercase tracking-widest">Pre-configurado</p>
+                        <p className="text-[9px] font-black text-white/20 mt-1 uppercase tracking-widest">Configurado</p>
                       </div>
                     </div>
                   ))}
@@ -265,7 +263,6 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
             </button>
           </section>
 
-          {/* PANEL DE CONTROL DE TIEMPO */}
           <div className="grid grid-cols-2 gap-4">
             <section className="bg-[#111] p-8 rounded-[2rem] border border-white/5 flex flex-col justify-between">
               <div>
@@ -297,7 +294,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
                  <History className="w-5 h-5 inline mr-2" /> Resetear Sesión
                </button>
                <p className="text-[9px] font-black text-center text-white/10 uppercase tracking-[0.4em] leading-relaxed">
-                 Borra todos los votos acumulados y limpia el monitor principal.
+                 Limpia monitor y votos activos.
                </p>
             </section>
           </div>
