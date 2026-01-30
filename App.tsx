@@ -48,7 +48,9 @@ const App: React.FC = () => {
     return id;
   });
 
-  // SINCRONIZACIÓN EN TIEMPO REAL ENTRE PESTAÑAS
+  // NOTA PARA EL USUARIO: Para que funcione en dispositivos distintos,
+  // aquí es donde se implementaría la llamada a una API real (Firebase/Supabase).
+  // El siguiente bloque simula la escucha de cambios globales.
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'voting_mode' && e.newValue) setVotingMode(e.newValue as VotingMode);
@@ -57,11 +59,6 @@ const App: React.FC = () => {
       if (e.key === 'dj_votes' && e.newValue) setVotes(JSON.parse(e.newValue));
       if (e.key === 'voting_ends_at') setVotingEndsAt(e.newValue ? Number(e.newValue) : null);
       if (e.key === 'dj_user' && e.newValue) setDjUser(JSON.parse(e.newValue));
-      
-      // Si el DJ reinicia la sesión, limpiamos el estado de voto local de esta pestaña también
-      if (e.key === 'has_voted' && e.newValue === null) {
-        // La pestaña reaccionará al cambio en la vista del usuario automáticamente
-      }
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -79,8 +76,10 @@ const App: React.FC = () => {
   }, [votingMode, activeSongs, activeGenres, votes, djUser, votingEndsAt]);
 
   const handleVote = useCallback((targetId: string, voterName?: string, voterPhone?: string) => {
-    const alreadyVoted = localStorage.getItem('has_voted') === 'true';
-    if (alreadyVoted) return;
+    const lastVoteTime = localStorage.getItem('last_vote_timestamp');
+    const COOLDOWN = 5 * 60 * 1000;
+    
+    if (lastVoteTime && Date.now() - Number(lastVoteTime) < COOLDOWN) return;
 
     const newVote: Vote = {
       id: Math.random().toString(36).substr(2, 9),
@@ -93,12 +92,8 @@ const App: React.FC = () => {
 
     const updatedVotes = [...votes, newVote];
     setVotes(updatedVotes);
-    
-    // Forzamos el guardado inmediato para que otras pestañas lo vean
     localStorage.setItem('dj_votes', JSON.stringify(updatedVotes));
-    localStorage.setItem('has_voted', 'true');
-    
-    // Notificamos manualmente el evento storage para la misma pestaña (opcional, pero ayuda a la consistencia)
+    localStorage.setItem('last_vote_timestamp', Date.now().toString());
     window.dispatchEvent(new Event('storage'));
   }, [voterId, votes]);
 
@@ -108,14 +103,12 @@ const App: React.FC = () => {
     setActiveGenres(genres);
     setVotes([]);
     setVotingEndsAt(null);
-    localStorage.removeItem('has_voted');
+    localStorage.removeItem('last_vote_timestamp');
     localStorage.removeItem('voting_ends_at');
     localStorage.setItem('dj_votes', JSON.stringify([]));
     localStorage.setItem('voting_mode', mode);
     localStorage.setItem('active_songs', JSON.stringify(songs));
     localStorage.setItem('active_genres', JSON.stringify(genres));
-    
-    // Disparamos evento para sincronizar inmediatamente
     window.dispatchEvent(new Event('storage'));
   }, []);
 
@@ -157,7 +150,7 @@ const App: React.FC = () => {
                   onReset={() => { 
                     setVotes([]); 
                     setVotingEndsAt(null); 
-                    localStorage.removeItem('has_voted');
+                    localStorage.removeItem('last_vote_timestamp');
                     localStorage.setItem('dj_votes', JSON.stringify([]));
                     localStorage.removeItem('voting_ends_at');
                     window.dispatchEvent(new Event('storage'));

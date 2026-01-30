@@ -1,25 +1,30 @@
 
 import React from 'react';
-import { Instagram, ExternalLink, Trophy } from 'lucide-react';
+import { Instagram, ExternalLink, Trophy, Clock } from 'lucide-react';
 
 interface PostVoteModalProps {
   isVisible: boolean;
+  cooldownMs?: number;
 }
 
-const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
+const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible, cooldownMs = 0 }) => {
   if (!isVisible) return null;
 
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
 
+  const formatTime = (ms: number) => {
+    const mins = Math.floor(ms / 60000);
+    const secs = Math.floor((ms % 60000) / 1000);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="fixed inset-0 z-[999] bg-[#000000] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
-      {/* Luz de fondo sutil para profundidad */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#F2CB05]/5 blur-[120px] rounded-full"></div>
       </div>
 
       <div className="relative z-10 max-w-sm w-full space-y-10">
-        {/* LOGO DJ PELIGRO - Identidad Central */}
         <div className="flex justify-center animate-in zoom-in duration-1000">
           <div className="relative">
             <div className="absolute inset-0 bg-[#F2CB05] blur-3xl opacity-20"></div>
@@ -31,11 +36,10 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
           </div>
         </div>
 
-        {/* MENSAJES DE IMPACTO - REGRESO AL AMARILLO */}
         <div className="space-y-6">
           <div className="space-y-3">
             <h2 className="text-[#F2CB05] font-black italic text-3xl md:text-5xl uppercase tracking-tighter leading-none animate-in slide-in-from-top-4 duration-700 delay-200">
-              GRACIAS POR <br/>TU VOTO
+              ¡VOTO <br/>ENVIADO!
             </h2>
             <div className="flex justify-center gap-1.5">
               <div className="w-12 h-1 bg-[#F2CB05] rounded-full"></div>
@@ -44,18 +48,18 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
           </div>
 
           <div className="space-y-4 animate-in fade-in duration-1000 delay-500">
-            <div className="inline-block bg-white/5 border border-white/10 px-6 py-2 rounded-full">
-              <p className="text-[#F2CB05] font-black text-2xl md:text-3xl uppercase italic tracking-widest leading-none">
-                RANKING LIVE
+            <div className="inline-flex items-center gap-3 bg-white/5 border border-[#F2CB05]/30 px-6 py-3 rounded-2xl">
+              <Clock className="w-5 h-5 text-[#F2CB05] animate-pulse" />
+              <p className="text-white font-black text-xl uppercase italic tracking-tighter">
+                NUEVO VOTO EN: <span className="text-[#F2CB05] ml-1">{formatTime(cooldownMs)}</span>
               </p>
             </div>
-            <p className="text-neutral-400 font-bold text-[10px] md:text-xs uppercase tracking-[0.4em] leading-relaxed mx-auto max-w-[280px]">
-              MIRA AHORA MISMO QUIÉN VA GANANDO EN MI INSTAGRAM OFICIAL
+            <p className="text-neutral-500 font-bold text-[10px] uppercase tracking-[0.4em] leading-relaxed mx-auto max-w-[280px]">
+              Sigue la fiesta mientras esperas tu próximo turno
             </p>
           </div>
         </div>
 
-        {/* BOTÓN DE ACCIÓN GIGANTE */}
         <div className="pt-6 animate-in slide-in-from-bottom-6 duration-700 delay-700">
           <a 
             href="https://www.instagram.com/djpeligroperu" 
@@ -72,7 +76,7 @@ const PostVoteModal: React.FC<PostVoteModalProps> = ({ isVisible }) => {
           
           <div className="mt-12 flex items-center justify-center gap-3 text-neutral-800">
              <Trophy className="w-4 h-4 fill-current" />
-             <span className="text-[9px] font-black uppercase tracking-[0.6em]">Peligro Edition • Official Data</span>
+             <span className="text-[9px] font-black uppercase tracking-[0.6em]">Peligro Edition • Re-voting System</span>
           </div>
         </div>
       </div>

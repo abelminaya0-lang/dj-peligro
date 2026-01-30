@@ -19,19 +19,33 @@ interface GuestViewProps {
 }
 
 const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, votingEndsAt, votes, isDarkMode, toggleTheme }) => {
-  const [hasVoted, setHasVoted] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
   const [selectedItem, setSelectedItem] = useState<{id: string, title: string, artist: string, coverUrl: string} | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
+  const VOTE_COOLDOWN_MS = 5 * 60 * 1000;
 
   useEffect(() => {
-    // Verificar estado inicial y escuchar cambios de localStorage para sync real-time
-    const checkVoted = () => setHasVoted(localStorage.getItem('has_voted') === 'true');
-    checkVoted();
+    const updateCooldown = () => {
+      const lastVote = localStorage.getItem('last_vote_timestamp');
+      if (lastVote) {
+        const elapsed = Date.now() - Number(lastVote);
+        const remaining = VOTE_COOLDOWN_MS - elapsed;
+        setCooldownRemaining(remaining > 0 ? remaining : 0);
+      } else {
+        setCooldownRemaining(0);
+      }
+    };
+
+    updateCooldown();
+    const interval = setInterval(updateCooldown, 1000);
+    window.addEventListener('storage', updateCooldown);
     
-    window.addEventListener('storage', checkVoted);
-    return () => window.removeEventListener('storage', checkVoted);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', updateCooldown);
+    };
   }, []);
 
   useEffect(() => {
@@ -55,7 +69,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
   }, [votes, songs, genres, mode]);
 
   const handleInitiateVote = (id: string, title: string, artist: string, cover: string) => {
-    if (!hasVoted && (!votingEndsAt || (timeLeft && timeLeft > 0))) {
+    if (cooldownRemaining === 0 && (!votingEndsAt || (timeLeft && timeLeft > 0))) {
       setSelectedItem({ id, title, artist, coverUrl: cover });
     }
   };
@@ -63,7 +77,6 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
   const handleFinalVote = (name: string, phone?: string) => {
     if (selectedItem) {
       onVote(selectedItem.id, name, phone);
-      setHasVoted(true);
       setSelectedItem(null);
     }
   };
@@ -82,8 +95,8 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   return (
     <div className="max-w-screen-md mx-auto px-4 flex flex-col min-h-[100dvh] bg-[#0D0D0D] pb-10 overflow-x-hidden relative">
-      {/* PANTALLA DE BLOQUEO POST-VOTO */}
-      <PostVoteModal isVisible={hasVoted} />
+      {/* PANTALLA DE BLOQUEO TEMPORAL POST-VOTO */}
+      <PostVoteModal isVisible={cooldownRemaining > 0} cooldownMs={cooldownRemaining} />
 
       {/* ACCESO RÁPIDO DJ (EL RAYO) */}
       <Link 
@@ -94,7 +107,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         <Zap className="w-6 h-6 fill-current animate-pulse group-hover:animate-none" />
       </Link>
 
-      {/* MODAL DE REGISTRO (PERSONAS) */}
+      {/* MODAL DE REGISTRO */}
       {selectedItem && (
         <VoteModal 
           song={selectedItem} 
@@ -108,14 +121,12 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
           <img src={DJ_LOGO} className="w-40 md:w-64 object-contain drop-shadow-[0_0_25px_rgba(242,203,5,0.4)]" alt="DJ Peligro" />
         </div>
         
-        {/* BANNER GIGANTE ACTUALIZADO */}
         <div className="inline-block bg-white text-black px-8 py-4 md:px-12 md:py-6 transform -skew-x-12 shadow-[0_15px_40px_-10px_rgba(242,203,5,0.4)] border-r-[6px] border-b-[6px] border-[#F2CB05] mb-10">
           <h2 className="text-base md:text-3xl font-[900] uppercase italic tracking-tighter leading-none">
             LA PRÓXIMA CANCIÓN LA ELIGES TÚ
           </h2>
         </div>
 
-        {/* Resumen Actualizado Real-time */}
         <div className="bg-[#151515] border border-white/5 rounded-[2.5rem] p-6 flex items-center justify-around shadow-2xl mb-8">
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1.5 text-[#F2CB05] font-black text-[10px] uppercase tracking-[0.3em] mb-1">
@@ -156,7 +167,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
                 key={song.id} 
                 song={song} 
                 onClick={() => handleInitiateVote(song.id, song.title, song.artist, song.coverUrl)} 
-                disabled={isClosed || hasVoted} 
+                disabled={isClosed || cooldownRemaining > 0} 
               />
             ))}
           </div>
@@ -166,7 +177,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
               <button 
                 key={g} 
                 onClick={() => handleInitiateVote(g, g, 'DJ PELIGRO', 'https://picsum.photos/seed/genre/300/300')}
-                disabled={isClosed || hasVoted}
+                disabled={isClosed || cooldownRemaining > 0}
                 className="group relative flex items-center justify-between p-6 rounded-[2.5rem] border-2 transition-all active:scale-95 bg-[#1A1A1A] border-white/5 disabled:opacity-50 shadow-xl"
               >
                 <div className="flex items-center gap-6">
