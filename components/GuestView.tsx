@@ -3,9 +3,21 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Heart, Timer, AlarmClockOff, Disc, Radio, Activity, Music, Mic2, Users, BarChart3, Zap, Trophy } from 'lucide-react';
+import { Instagram, Timer, Disc, Radio, Activity, Music, Mic2, Zap } from 'lucide-react';
 import PostVoteModal from './PostVoteModal';
 import VoteModal from './VoteModal';
+
+// Icono de TikTok personalizado ya que Lucide no lo incluye por defecto
+const TikTokIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.44-4.14-1.17-.07 2.1-.03 4.21-.05 6.31-.03 1.59-.46 3.23-1.53 4.44-1.39 1.63-3.71 2.44-5.81 2.05-2.22-.32-4.22-1.92-4.93-4.11-.84-2.5.21-5.46 2.47-6.81.7-.44 1.49-.71 2.31-.83v4.11c-.53.11-1.05.35-1.47.73-1.02.89-1.27 2.5-.55 3.69.64 1.13 2.09 1.67 3.32 1.25 1.1-.33 1.83-1.41 1.84-2.55V4.74c-.01-1.57-.01-3.14-.01-4.72Z"/>
+  </svg>
+);
 
 interface GuestViewProps {
   mode: VotingMode;
@@ -57,17 +69,6 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
     return () => clearInterval(interval);
   }, [votingEndsAt]);
 
-  const stats = useMemo(() => {
-    const total = votes.length;
-    const items = mode === 'songs' ? songs : genres;
-    return items.map(item => {
-      const id = typeof item === 'string' ? item : item.id;
-      const name = typeof item === 'string' ? item : item.title;
-      const count = votes.filter(v => v.targetId === id).length;
-      return { name, count, percentage: total > 0 ? Math.round((count / total) * 100) : 0 };
-    }).sort((a, b) => b.count - a.count);
-  }, [votes, songs, genres, mode]);
-
   const handleInitiateVote = (id: string, title: string, artist: string, cover: string) => {
     if (cooldownRemaining === 0 && (!votingEndsAt || (timeLeft && timeLeft > 0))) {
       setSelectedItem({ id, title, artist, coverUrl: cover });
@@ -94,7 +95,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
   };
 
   return (
-    <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-[#0D0D0D] pb-2 overflow-x-hidden relative">
+    <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-[#000000] pb-10 overflow-x-hidden relative">
       {/* PANTALLA DE BLOQUEO TEMPORAL POST-VOTO */}
       <PostVoteModal isVisible={cooldownRemaining > 0} cooldownMs={cooldownRemaining} />
 
@@ -107,47 +108,37 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         />
       )}
 
-      <header className="text-center pt-2 mb-2 animate-in fade-in duration-1000">
-        <div className="relative w-full flex justify-center mb-1">
+      <header className="text-center pt-4 mb-2 animate-in fade-in duration-700 flex flex-col items-center">
+        {/* LOGO MÁS GRANDE Y CERCA DEL BANNER */}
+        <div className="relative w-full flex justify-center -mb-8 md:-mb-14">
           <div className="relative">
-             <div className="absolute inset-0 bg-[#F2CB05] blur-[80px] opacity-20 animate-pulse"></div>
+             <div className="absolute inset-0 bg-[#F2CB05] blur-[80px] opacity-15"></div>
              <img 
                src={DJ_LOGO} 
-               className="w-80 md:w-[40rem] object-contain drop-shadow-[0_0_60px_rgba(242,203,5,0.7)] transform hover:scale-105 transition-transform duration-700 relative z-10" 
+               className="w-56 md:w-96 object-contain drop-shadow-[0_0_50px_rgba(242,203,5,0.4)] relative z-10 transition-transform hover:scale-105 duration-500" 
                alt="DJ Peligro" 
              />
           </div>
         </div>
         
-        <div className="inline-block bg-white text-black px-12 py-4 md:px-20 md:py-8 transform -skew-x-6 shadow-[0_20px_50px_-20px_rgba(242,203,5,0.7)] border-r-[8px] border-b-[8px] border-[#F2CB05] mb-4 w-full">
-          <h2 className="text-xl md:text-5xl font-[900] uppercase italic tracking-tighter leading-none">
-            LA PRÓXIMA CANCIÓN <span className="text-[#F2B705]">LA ELIGES TÚ</span>
+        {/* BANNER MÁS GRANDE, FONDO BLANCO, LETRA NEGRA */}
+        <div className="relative z-20 bg-white text-black py-4 px-10 md:py-6 md:px-14 transform -skew-x-3 border-b-4 border-r-4 border-[#F2CB05] mb-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] inline-block">
+          <h2 className="text-base md:text-2xl font-black uppercase italic tracking-tighter leading-none text-center">
+            LA PRÓXIMA CANCIÓN LA ELIGES TÚ
           </h2>
         </div>
 
-        {/* STATS COMPACTOS */}
-        <div className="grid grid-cols-2 gap-1 mb-2">
-            <div className="bg-[#151515] border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-4">
-               <Users className="w-5 h-5 text-[#F2CB05]" />
-               <span className="text-3xl font-black italic text-white">{votes.length} <span className="text-[10px] uppercase tracking-widest opacity-40">VOTOS</span></span>
-            </div>
-            <div className="bg-[#151515] border border-white/10 rounded-2xl p-4 flex items-center justify-center gap-4 overflow-hidden">
-               <Trophy className="w-5 h-5 text-[#F2CB05] shrink-0" />
-               <span className="text-lg font-black italic uppercase text-white truncate">{stats[0]?.count > 0 ? stats[0].name : "---"}</span>
-            </div>
-        </div>
-
         {votingEndsAt && (
-          <div className={`w-full flex items-center justify-center gap-4 py-4 rounded-2xl border-2 mb-2 transition-all ${isClosed ? 'bg-red-500 border-red-600' : 'bg-[#151515] border-[#F2CB05] text-white'}`}>
-            {!isClosed && <Timer className="w-6 h-6 animate-pulse text-[#F2CB05]" />}
-            <span className="text-3xl font-black tracking-widest italic tabular-nums">
+          <div className={`w-full max-w-[240px] flex items-center justify-center gap-3 py-2 rounded-xl border-2 mb-4 transition-all ${isClosed ? 'bg-red-600 border-red-700' : 'bg-[#111] border-[#F2CB05] text-white'}`}>
+            {!isClosed && <Timer className="w-4 h-4 animate-pulse text-[#F2CB05]" />}
+            <span className="text-2xl font-black tracking-widest italic tabular-nums">
               {isClosed ? 'CERRADO' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
             </span>
           </div>
         )}
       </header>
 
-      <main className="flex-grow space-y-1 px-0.5">
+      <main className="flex-grow space-y-1 px-1">
         {mode === 'songs' ? (
           <div className="space-y-1">
             {songs.map(song => (
@@ -166,17 +157,17 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
                 key={g} 
                 onClick={() => handleInitiateVote(g, g, 'DJ PELIGRO', 'https://picsum.photos/seed/genre/300/300')}
                 disabled={isClosed || cooldownRemaining > 0}
-                className="group relative flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-[0.98] bg-[#1A1A1A] border-white/5 disabled:opacity-50"
+                className="group relative flex items-center justify-between p-5 rounded-2xl border transition-all active:scale-[0.98] bg-[#111] border-white/5 disabled:opacity-50"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-5">
                   <div className="p-4 rounded-xl bg-[#F2CB05] shadow-lg group-hover:rotate-6 transition-transform">
                     {getGenreIcon(g)}
                   </div>
-                  <span className="text-2xl font-[900] italic uppercase tracking-tighter text-white">
+                  <span className="text-2xl font-black italic uppercase tracking-tighter text-white">
                     {g}
                   </span>
                 </div>
-                <div className="font-black px-8 py-4 rounded-xl italic text-sm bg-white text-black group-hover:bg-[#F2CB05] transition-colors">
+                <div className="font-black px-8 py-4 rounded-xl italic text-sm bg-white text-black group-hover:bg-[#F2CB05] transition-colors shadow-lg">
                   VOTAR
                 </div>
               </button>
@@ -185,22 +176,28 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         )}
       </main>
 
-      <footer className="mt-4 py-6 text-center border-t border-white/5 flex flex-col items-center gap-4">
-        <div className="flex justify-center gap-10 items-center">
-           <a href="https://instagram.com/djpeligroperu" target="_blank" rel="noopener noreferrer" className="opacity-20 hover:opacity-100 transition-opacity">
-              <Instagram className="w-8 h-8" />
+      <footer className="mt-16 py-10 text-center flex flex-col items-center">
+        {/* Redes Sociales con TikTok oficial */}
+        <div className="flex justify-center gap-14 items-center mb-32">
+           <a href="https://instagram.com/djpeligroperu" target="_blank" rel="noopener noreferrer" className="text-white opacity-40 hover:opacity-100 transition-all hover:scale-110">
+              <Instagram className="w-10 h-10" />
            </a>
-           <Music className="w-8 h-8 opacity-20 hover:opacity-100 transition-opacity" />
-           <Activity className="w-8 h-8 opacity-20 hover:opacity-100 transition-opacity" />
-           <Link 
-             to="/admin" 
-             className="opacity-5 hover:opacity-100 transition-opacity p-2 hover:scale-110 active:scale-95 duration-300"
-             aria-label="Panel DJ"
-           >
-             <Zap className="w-7 h-7 text-[#F2CB05] fill-current" />
-           </Link>
+           <a href="https://tiktok.com/@djpeligroperu" target="_blank" rel="noopener noreferrer" className="text-white opacity-40 hover:opacity-100 transition-all hover:scale-110">
+              <TikTokIcon className="w-10 h-10" />
+           </a>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[1em] opacity-10 leading-none">DJ PELIGRO • VOTE SYSTEM</p>
+
+        {/* Acceso Panel (El Rayo) - Espacio extremo */}
+        <Link 
+          to="/admin" 
+          className="opacity-[0.01] hover:opacity-100 transition-opacity p-10 mb-6 group"
+        >
+          <Zap className="w-6 h-6 text-[#F2CB05] fill-current group-hover:animate-bounce" />
+        </Link>
+        
+        <p className="text-[8px] font-black uppercase tracking-[1.2em] opacity-10 leading-none">
+          DJ PELIGRO • VOTE SYSTEM PRO
+        </p>
       </footer>
     </div>
   );
