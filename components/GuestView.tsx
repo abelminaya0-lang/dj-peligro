@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Timer, Disc, Radio, Activity, Music, Mic2, Zap } from 'lucide-react';
+import { Instagram, Timer, Zap } from 'lucide-react';
 import PostVoteModal from './PostVoteModal';
 import VoteModal from './VoteModal';
 
@@ -18,7 +18,7 @@ interface GuestViewProps {
   songs: Song[];
   genres: string[];
   votes: Vote[];
-  onVote: (targetId: string, name?: string, phone?: string) => void;
+  onVote: (targetId: string, name?: string) => void;
   votingEndsAt: number | null;
   isDarkMode: boolean;
   toggleTheme: () => void;
@@ -63,13 +63,26 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
     }
   };
 
+  const handleFinalVote = (name: string) => {
+    if (selectedItem) {
+      onVote(selectedItem.id, name);
+      localStorage.setItem('last_vote_timestamp', Date.now().toString());
+      setSelectedItem(null);
+    }
+  };
+
   const isClosed = votingEndsAt !== null && timeLeft === 0;
 
   return (
     <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-black pb-10 overflow-x-hidden relative">
       <PostVoteModal isVisible={cooldownRemaining > 0} cooldownMs={cooldownRemaining} />
+      
       {selectedItem && (
-        <VoteModal song={selectedItem} onClose={() => setSelectedItem(null)} onSubmit={(n, p) => { onVote(selectedItem.id, n, p); setSelectedItem(null); }} />
+        <VoteModal 
+          song={selectedItem} 
+          onClose={() => setSelectedItem(null)} 
+          onSubmit={handleFinalVote} 
+        />
       )}
 
       <header className="text-center pt-6 mb-4 flex flex-col items-center">
