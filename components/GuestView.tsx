@@ -6,6 +6,7 @@ import SongCard from './SongCard';
 import { Instagram, Timer, Zap, AlertTriangle, ChevronRight } from 'lucide-react';
 import PostVoteModal from './PostVoteModal';
 import VoteModal from './VoteModal';
+import VotingClosedModal from './VotingClosedModal';
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -78,9 +79,11 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   return (
     <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-black pb-10 overflow-x-hidden relative">
-      <PostVoteModal isVisible={cooldownRemaining > 0} cooldownMs={cooldownRemaining} />
+      {/* Modales de estado */}
+      <PostVoteModal isVisible={cooldownRemaining > 0 && !isClosed} cooldownMs={cooldownRemaining} />
+      <VotingClosedModal isVisible={isClosed} />
       
-      {selectedItem && (
+      {selectedItem && !isClosed && (
         <VoteModal 
           song={selectedItem} 
           onClose={() => setSelectedItem(null)} 
@@ -156,12 +159,6 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
           ))
         )}
       </main>
-
-      {isClosed && (
-        <div className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-10 py-5 rounded-[2rem] font-black italic uppercase tracking-[0.2em] text-sm shadow-[0_20px_50px_rgba(220,38,38,0.5)] border-4 border-white animate-bounce text-center">
-          ¡YA ESTAMOS MEZCLANDO! <br/> <span className="text-[10px] opacity-80">ATENTO AL PARLANTE</span>
-        </div>
-      )}
 
       <footer className="mt-24 py-12 flex flex-col items-center">
         <div className="flex justify-center gap-20 items-center mb-48">

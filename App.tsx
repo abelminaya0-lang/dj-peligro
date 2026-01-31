@@ -52,8 +52,8 @@ const App: React.FC = () => {
       setVotes(allVotes);
     }
 
-    // 2. Cargar Cronómetro Real-time
-    const { data: crono } = await supabase.from('CRONOMETRO').select('*').order('created_at', { ascending: false }).limit(1);
+    // 2. Cargar Cronómetro (Solo usamos tiempo_fin para evitar errores de columna)
+    const { data: crono } = await supabase.from('CRONOMETRO').select('id, tiempo_fin').order('id', { ascending: false }).limit(1);
     if (crono && crono[0] && crono[0].tiempo_fin) {
       setVotingEndsAt(new Date(crono[0].tiempo_fin).getTime());
     } else {
@@ -118,8 +118,9 @@ const App: React.FC = () => {
     
     const now = new Date();
     const end = new Date(now.getTime() + minutes * 60000);
+    
+    // Solo insertamos tiempo_fin para asegurar compatibilidad con tu tabla actual
     await supabase.from('CRONOMETRO').insert([{
-      tiempo_inicio: now.toISOString(),
       tiempo_fin: end.toISOString()
     }]);
   };
