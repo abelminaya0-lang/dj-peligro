@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import SongCard from './SongCard';
-import { Instagram, Timer, Zap } from 'lucide-react';
+import { Instagram, Timer, Zap, AlertTriangle, ChevronRight } from 'lucide-react';
 import PostVoteModal from './PostVoteModal';
 import VoteModal from './VoteModal';
 
@@ -50,10 +50,12 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   useEffect(() => {
     if (!votingEndsAt) { setTimeLeft(null); return; }
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const diff = votingEndsAt - Date.now();
       setTimeLeft(diff <= 0 ? 0 : diff);
-    }, 1000);
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [votingEndsAt]);
 
@@ -72,6 +74,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
   };
 
   const isClosed = votingEndsAt !== null && timeLeft === 0;
+  const isUrgent = timeLeft !== null && timeLeft > 0 && timeLeft <= 60000;
 
   return (
     <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-black pb-10 overflow-x-hidden relative">
@@ -85,49 +88,88 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
         />
       )}
 
-      <header className="text-center pt-6 mb-4 flex flex-col items-center">
-        <div className="relative w-full flex justify-center -mb-10 md:-mb-16">
-          <img src={DJ_LOGO} className="w-64 md:w-96 object-contain drop-shadow-[0_0_50px_rgba(242,203,5,0.4)] relative z-10" alt="DJ Peligro" />
+      <header className="text-center pt-8 mb-4 flex flex-col items-center relative">
+        {/* Glow effect for urgency */}
+        {isUrgent && (
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-red-600/20 blur-[100px] pointer-events-none animate-pulse"></div>
+        )}
+
+        <div className="relative w-full flex justify-center -mb-8 md:-mb-12">
+          <img src={DJ_LOGO} className="w-56 md:w-80 object-contain drop-shadow-[0_0_40px_rgba(242,203,5,0.4)] relative z-10" alt="DJ Peligro" />
         </div>
         
-        <div className="relative z-20 bg-white text-black py-3 px-8 md:py-4 md:px-12 transform -skew-x-2 border-b-4 border-r-4 border-[#F2CB05] mb-6 shadow-2xl">
-          <h2 className="text-[11px] md:text-sm font-black uppercase italic tracking-[0.25em] leading-none text-center">
-            LA PRÓXIMA CANCIÓN LA ELIGES TÚ
+        <div className="relative z-20 bg-white text-black py-4 px-10 transform -skew-x-3 border-b-4 border-r-4 border-[#F2CB05] mb-8 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+          <h2 className="text-[12px] md:text-base font-black uppercase italic tracking-[0.3em] leading-none text-center">
+            LA PRÓXIMA LA ELIGES <span className="text-[#F2CB05] bg-black px-2 ml-1">TÚ</span>
           </h2>
         </div>
 
         {votingEndsAt && (
-          <div className={`w-full max-w-[180px] flex items-center justify-center gap-2 py-1.5 rounded-lg border-2 ${isClosed ? 'bg-red-600 border-red-700' : 'bg-[#111] border-[#F2CB05] text-white'}`}>
-            {!isClosed && <Timer className="w-3.5 h-3.5 animate-pulse text-[#F2CB05]" />}
-            <span className="text-xl font-black italic tabular-nums">
-              {isClosed ? 'CERRADO' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
-            </span>
+          <div className={`w-full max-w-[280px] flex flex-col items-center justify-center gap-1 py-5 px-6 rounded-3xl border-4 transition-all duration-500 scale-110 mb-10 ${
+            isClosed 
+              ? 'bg-neutral-900 border-neutral-700 text-neutral-500 shadow-none' 
+              : isUrgent 
+                ? 'bg-red-600 border-white text-white animate-bounce shadow-[0_0_60px_rgba(220,38,38,0.7)]' 
+                : 'bg-black border-[#F2CB05] text-[#F2CB05] shadow-[0_0_30px_rgba(242,203,5,0.2)]'
+          }`}>
+            <div className="flex items-center gap-3">
+              {isClosed ? <AlertTriangle className="w-5 h-5" /> : <Timer className={`w-6 h-6 ${isUrgent ? 'animate-spin' : ''}`} />}
+              <span className={`text-5xl font-black italic tabular-nums tracking-tighter leading-none`}>
+                {isClosed ? 'FIN' : `${Math.floor(timeLeft!/60000)}:${String(Math.floor((timeLeft!%60000)/1000)).padStart(2,'0')}`}
+              </span>
+            </div>
+            <p className={`text-[10px] font-black uppercase tracking-[0.4em] mt-2 ${isUrgent ? 'animate-pulse' : 'opacity-60'}`}>
+              {isClosed ? 'VOTACIÓN TERMINADA' : isUrgent ? '¡CORRE, VOTA YA!' : 'CIERRA EN'}
+            </p>
           </div>
         )}
       </header>
 
-      <main className="flex-grow space-y-1.5 px-2">
+      <main className={`flex-grow space-y-3 px-3 transition-all duration-700 ${isClosed ? 'opacity-30 grayscale blur-[2px] pointer-events-none translate-y-4' : 'opacity-100 translate-y-0'}`}>
+        <div className="flex items-center justify-between mb-4 px-2">
+           <h3 className="text-xs font-black text-neutral-500 uppercase tracking-widest italic flex items-center gap-2">
+             <div className="w-1.5 h-1.5 bg-[#F2CB05] rounded-full"></div>
+             {mode === 'songs' ? 'Siguiente Track' : 'Elegir Género'}
+           </h3>
+           <div className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest flex items-center gap-1">
+             LIVE <div className="w-1 h-1 bg-red-600 rounded-full animate-ping"></div>
+           </div>
+        </div>
+
         {mode === 'songs' ? (
           songs.map(song => (
             <SongCard key={song.id} song={song} onClick={() => handleInitiateVote(song.id, song.title, song.artist, song.coverUrl)} disabled={isClosed || cooldownRemaining > 0} />
           ))
         ) : (
           genres.map(g => (
-            <button key={g} onClick={() => handleInitiateVote(g, g, 'DJ PELIGRO', 'https://picsum.photos/seed/genre/300/300')} disabled={isClosed || cooldownRemaining > 0} className="group flex items-center justify-between p-5 rounded-2xl bg-[#111] border border-white/5 w-full active:scale-95 transition-all">
-              <span className="text-2xl font-black italic uppercase text-white tracking-tighter">{g}</span>
-              <div className="bg-[#F2CB05] text-black font-black px-6 py-3 rounded-xl italic text-xs">VOTAR</div>
+            <button 
+              key={g} 
+              onClick={() => handleInitiateVote(g, g, 'DJ PELIGRO', 'https://picsum.photos/seed/genre/300/300')} 
+              disabled={isClosed || cooldownRemaining > 0} 
+              className="group flex items-center justify-between p-6 rounded-3xl bg-[#111] border-2 border-white/5 w-full active:scale-95 hover:border-[#F2CB05] transition-all shadow-xl"
+            >
+              <span className="text-3xl font-black italic uppercase text-white tracking-tighter">{g}</span>
+              <div className="bg-[#F2CB05] text-black font-black px-8 py-4 rounded-2xl italic text-xs flex items-center gap-2">
+                VOTAR <ChevronRight className="w-4 h-4" />
+              </div>
             </button>
           ))
         )}
       </main>
 
-      <footer className="mt-20 py-10 flex flex-col items-center">
-        <div className="flex justify-center gap-16 items-center mb-40">
-           <a href="https://instagram.com/djpeligroperu" className="text-white/40 hover:text-[#F2CB05] transition-colors"><Instagram className="w-10 h-10" /></a>
-           <a href="https://tiktok.com/@djpeligroperu" className="text-white/40 hover:text-[#F2CB05] transition-colors"><TikTokIcon className="w-10 h-10" /></a>
+      {isClosed && (
+        <div className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-10 py-5 rounded-[2rem] font-black italic uppercase tracking-[0.2em] text-sm shadow-[0_20px_50px_rgba(220,38,38,0.5)] border-4 border-white animate-bounce text-center">
+          ¡YA ESTAMOS MEZCLANDO! <br/> <span className="text-[10px] opacity-80">ATENTO AL PARLANTE</span>
         </div>
-        <Link to="/admin" className="opacity-[0.02] hover:opacity-100 p-10 transition-opacity"><Zap className="w-6 h-6 text-[#F2CB05] fill-current" /></Link>
-        <p className="text-[7px] font-black uppercase tracking-[1.5em] opacity-10">DJ PELIGRO FLOW</p>
+      )}
+
+      <footer className="mt-24 py-12 flex flex-col items-center">
+        <div className="flex justify-center gap-20 items-center mb-48">
+           <a href="https://instagram.com/djpeligroperu" target="_blank" className="text-white/20 hover:text-[#F2CB05] transition-all hover:scale-125"><Instagram className="w-12 h-12" /></a>
+           <a href="https://tiktok.com/@djpeligroperu" target="_blank" className="text-white/20 hover:text-[#F2CB05] transition-all hover:scale-125"><TikTokIcon className="w-12 h-12" /></a>
+        </div>
+        <Link to="/admin" className="opacity-[0.01] hover:opacity-100 p-10 transition-opacity"><Zap className="w-8 h-8 text-[#F2CB05] fill-current" /></Link>
+        <p className="text-[8px] font-black uppercase tracking-[2em] opacity-5">DJ PELIGRO • EL QUE SABE SABE</p>
       </footer>
     </div>
   );

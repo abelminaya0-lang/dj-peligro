@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { Song, Vote, VotingMode } from '../types';
-import { Trophy, Users, Timer, QrCode } from 'lucide-react';
+import { Trophy, Users, Timer, QrCode, AlertCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface PublicResultsProps {
@@ -37,6 +37,9 @@ const PublicResults: React.FC<PublicResultsProps> = ({ mode, songs, genres, vote
     }).sort((a, b) => b.count - a.count).slice(0, 5);
   }, [votes, songs, genres, mode]);
 
+  const isClosed = votingEndsAt !== null && timeLeft === 0;
+  const isUrgent = timeLeft !== null && timeLeft > 0 && timeLeft <= 60000;
+
   return (
     <div className="fixed inset-0 bg-black flex flex-col items-center justify-between p-2 overflow-hidden">
       <header className="w-full flex justify-between items-center p-4 bg-[#0D0D0D] border-b border-white/5">
@@ -48,27 +51,37 @@ const PublicResults: React.FC<PublicResultsProps> = ({ mode, songs, genres, vote
            </div>
         </div>
 
-        <div className="bg-[#151515] border-2 border-[#F2CB05] rounded-2xl p-6 flex flex-col items-center min-w-[200px]">
-            <span className="text-6xl font-black tabular-nums italic text-white tracking-tighter leading-none">
-              {timeLeft !== null ? `${Math.floor(timeLeft/60000)}:${String(Math.floor((timeLeft%60000)/1000)).padStart(2,'0')}` : '00:00'}
+        <div className={`border-4 rounded-3xl p-6 flex flex-col items-center min-w-[280px] transition-all duration-300 ${
+          isClosed 
+            ? 'bg-red-600 border-red-700' 
+            : isUrgent 
+              ? 'bg-red-600 border-white animate-pulse shadow-[0_0_50px_rgba(220,38,38,0.8)]' 
+              : 'bg-[#151515] border-[#F2CB05]'
+        }`}>
+            <span className={`text-8xl font-black tabular-nums italic tracking-tighter leading-none ${isUrgent || isClosed ? 'text-white' : 'text-white'}`}>
+              {isClosed ? 'FIN' : timeLeft !== null ? `${Math.floor(timeLeft/60000)}:${String(Math.floor((timeLeft%60000)/1000)).padStart(2,'0')}` : '00:00'}
             </span>
-            <span className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest mt-1">TIEMPO RESTANTE</span>
+            <span className={`text-xs font-black uppercase tracking-[0.3em] mt-2 ${isUrgent || isClosed ? 'text-white/80' : 'text-[#F2CB05]'}`}>
+              {isClosed ? 'VOTACIÓN FINALIZADA' : isUrgent ? '¡ÚLTIMOS SEGUNDOS!' : 'TIEMPO RESTANTE'}
+            </span>
         </div>
       </header>
 
       <main className="w-full grid grid-cols-4 gap-2 flex-grow items-stretch p-2">
-        {/* Lado Izquierdo: El QR */}
         <div className="bg-[#0D0D0D] rounded-3xl border border-white/5 flex flex-col items-center justify-center p-4">
-           <div className="bg-white p-4 rounded-3xl mb-6">
+           <div className="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
               <QRCodeSVG value={publicUrl} size={280} level="H" includeMargin={true} />
            </div>
            <h3 className="text-2xl font-black italic uppercase text-white text-center leading-tight">
              ESCANEA Y ELIGE <br/> <span className="text-[#F2CB05]">LA SIGUIENTE</span>
            </h3>
+           <div className="mt-6 flex items-center gap-2 text-white/20">
+             <AlertCircle className="w-4 h-4" />
+             <span className="text-[10px] font-black uppercase tracking-widest">Sincronización Supabase Activa</span>
+           </div>
         </div>
 
-        {/* Listado de Resultados al Rose */}
-        <div className="col-span-3 flex flex-col gap-1 overflow-hidden">
+        <div className={`col-span-3 flex flex-col gap-1 overflow-hidden transition-all duration-1000 ${isClosed ? 'grayscale-[0.5]' : ''}`}>
           {stats.map((s, i) => (
             <div key={i} className={`flex-grow flex flex-col justify-center px-8 rounded-2xl bg-[#0D0D0D] border-2 transition-all duration-700 ${i === 0 ? 'border-[#F2CB05] bg-gradient-to-r from-[#F2CB05]/10 to-transparent' : 'border-white/5 opacity-80'}`}>
               <div className="flex justify-between items-end mb-2">

@@ -5,17 +5,12 @@ import { Song, Vote, VotingMode } from '../types';
 import { 
   LogOut, 
   Square, 
-  Save, 
-  Disc, 
   Activity, 
   Monitor, 
-  Trash2, 
-  Users, 
   Clock,
   History,
-  TrendingUp,
   QrCode,
-  ExternalLink
+  Timer
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -39,6 +34,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
   onUpdateSession, votingEndsAt, onStartVoting, onStopVoting 
 }) => {
   const [editMode, setEditMode] = useState<VotingMode>(activeMode);
+  const [customMinutes, setCustomMinutes] = useState<string>('3');
   const [itemInputs, setItemInputs] = useState<string[]>(() => {
     const existing = editMode === 'songs' ? activeSongs.map(s => s.title) : activeGenres;
     const initial = [...existing];
@@ -164,23 +160,50 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5">
-              <p className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest mb-4">Cronómetro</p>
+              <p className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest mb-4">Cronómetro de Votación</p>
               {!votingEndsAt ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {[3, 5].map(m => (
-                    <button key={m} onClick={() => onStartVoting(m)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">+{m} MIN</button>
-                  ))}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => onStartVoting(3)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">3 MINUTOS</button>
+                    <button onClick={() => onStartVoting(5)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">5 MINUTOS</button>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-grow">
+                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                      <input 
+                        type="number" 
+                        value={customMinutes}
+                        onChange={(e) => setCustomMinutes(e.target.value)}
+                        placeholder="Mins"
+                        className="w-full bg-black border border-white/5 rounded-xl pl-12 pr-4 py-4 font-bold text-white outline-none focus:border-[#F2CB05]"
+                      />
+                    </div>
+                    <button 
+                      onClick={() => onStartVoting(Number(customMinutes))}
+                      className="px-6 bg-[#F2CB05] text-black rounded-xl font-black text-xs uppercase italic"
+                    >
+                      INICIAR
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <button onClick={onStopVoting} className="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase flex items-center justify-center gap-2 animate-pulse">
-                   <Square className="w-4 h-4 fill-current" /> Detener Votación
+                <button onClick={onStopVoting} className="w-full h-full bg-red-600 text-white rounded-xl font-black uppercase flex flex-col items-center justify-center gap-2 animate-pulse min-h-[120px]">
+                   <Square className="w-8 h-8 fill-current mb-2" />
+                   <span className="text-xl italic tracking-tighter">DETENER VOTOS</span>
                 </button>
               )}
             </section>
-            <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5 flex flex-col justify-center">
-               <button onClick={onReset} className="w-full py-4 bg-white/5 rounded-xl text-xs font-black text-white/30 uppercase tracking-widest hover:text-red-500 transition-colors">
-                 <History className="w-4 h-4 inline mr-2" /> Resetear Todo
+            <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5 flex flex-col justify-center gap-4">
+               <button onClick={onReset} className="w-full py-6 bg-white/5 rounded-xl text-xs font-black text-white/30 uppercase tracking-widest hover:text-red-500 transition-colors border border-dashed border-white/10">
+                 <History className="w-4 h-4 inline mr-2" /> REINICIAR CONTADORES
                </button>
+               <div className="p-4 bg-black/50 rounded-xl border border-white/5 text-center">
+                  <p className="text-[9px] font-black uppercase text-neutral-600 mb-1">Status del Sistema</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-[10px] font-black text-white italic">DJ PELIGRO ONLINE</span>
+                  </div>
+               </div>
             </section>
           </div>
         </div>

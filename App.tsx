@@ -19,11 +19,13 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : { email: '', isAuthenticated: false };
   });
 
-  // Cargar datos iniciales
   const loadData = async () => {
-    // 1. Cargar Canciones y Géneros
+    // 1. Cargar Canciones y Votos
     const { data: canciones } = await supabase.from('CANCIONES').select('*');
     if (canciones) {
+      const isSongsMode = canciones.some(c => c.genero === 'pista');
+      setVotingMode(isSongsMode ? 'songs' : 'genres');
+      
       const songs = canciones.filter(c => c.genero === 'pista').map(c => ({
         id: c.id.toString(),
         title: c.nombre,
@@ -35,7 +37,6 @@ const App: React.FC = () => {
       setActiveSongs(songs);
       setActiveGenres(genres);
 
-      // Reconstruir lista de votos para las estadísticas
       const allVotes: Vote[] = [];
       canciones.forEach(c => {
         const voteCount = Number(c.votos || 0);
@@ -51,8 +52,8 @@ const App: React.FC = () => {
       setVotes(allVotes);
     }
 
-    // 2. Cargar Cronómetro
-    const { data: crono } = await supabase.from('CRONOMETRO').select('*').order('id', { ascending: false }).limit(1);
+    // 2. Cargar Cronómetro Real-time
+    const { data: crono } = await supabase.from('CRONOMETRO').select('*').order('created_at', { ascending: false }).limit(1);
     if (crono && crono[0] && crono[0].tiempo_fin) {
       setVotingEndsAt(new Date(crono[0].tiempo_fin).getTime());
     } else {
@@ -63,17 +64,12 @@ const App: React.FC = () => {
   useEffect(() => {
     loadData();
 
-    // Realtime Subscriptions
-    const cancionesSub = supabase.channel('canciones_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'CANCIONES' }, () => {
-        loadData();
-      })
+    const cancionesSub = supabase.channel('canciones_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'CANCIONES' }, () => loadData())
       .subscribe();
 
-    const cronoSub = supabase.channel('crono_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'CRONOMETRO' }, () => {
-        loadData();
-      })
+    const cronoSub = supabase.channel('crono_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'CRONOMETRO' }, () => loadData())
       .subscribe();
 
     return () => {
@@ -84,8 +80,6 @@ const App: React.FC = () => {
 
   const handleVote = useCallback(async (targetId: string, voterName?: string) => {
     const name = voterName || 'Anónimo';
-    
-    // 1. Obtener datos actuales de la canción para actualizar el string de usuarios
     const { data: current } = await supabase.from('CANCIONES').select('votos, usuario').eq('id', targetId).single();
     
     if (current) {
@@ -93,24 +87,20 @@ const App: React.FC = () => {
       const currentUsers = current.usuario ? current.usuario + ', ' : '';
       const newUsers = currentUsers + name;
 
-      // 2. Actualizar Canción
       await supabase.from('CANCIONES').update({ 
         votos: newVotos, 
         usuario: newUsers 
       }).eq('id', targetId);
 
-      // 3. Registrar en tabla USUARIOS
       await supabase.from('USUARIOS').insert([{ nombres: name }]);
     }
   }, []);
 
   const updateSession = useCallback(async (mode: VotingMode, items: string[]) => {
-    // 1. Limpiar todo
     await supabase.from('CANCIONES').delete().neq('id', 0);
     await supabase.from('USUARIOS').delete().neq('id', 0);
     await supabase.from('CRONOMETRO').delete().neq('id', 0);
 
-    // 2. Insertar nuevas opciones
     const toInsert = items.map(name => ({
       nombre: name,
       votos: 0,
@@ -119,11 +109,13 @@ const App: React.FC = () => {
     }));
 
     await supabase.from('CANCIONES').insert(toInsert);
-    setVotingMode(mode);
     setVotingEndsAt(null);
   }, []);
 
   const handleStartVoting = async (minutes: number) => {
+    // Primero limpiamos cronómetros viejos
+    await supabase.from('CRONOMETRO').delete().neq('id', 0);
+    
     const now = new Date();
     const end = new Date(now.getTime() + minutes * 60000);
     await supabase.from('CRONOMETRO').insert([{
