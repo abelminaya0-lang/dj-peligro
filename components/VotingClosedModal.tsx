@@ -33,7 +33,7 @@ const VotingClosedModal: React.FC<VotingClosedModalProps> = ({ isVisible }) => {
         </h2>
         
         <p className="text-neutral-400 font-bold uppercase tracking-[0.3em] text-[10px] mb-12">
-          EL TIEMPO HA EXPIRADO • DJ PELIGRO EN CONTROL
+          EL TIEMPO HA EXPIRADO • DJ PELIGRO EN MEZCLAS
         </p>
 
         {/* Botón Instagram */}
