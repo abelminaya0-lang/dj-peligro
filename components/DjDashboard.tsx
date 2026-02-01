@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Song, Vote, VotingMode } from '../types';
 import { 
@@ -10,7 +10,7 @@ import {
   Clock,
   History,
   QrCode,
-  Timer
+  Play
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -35,6 +35,7 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 }) => {
   const [editMode, setEditMode] = useState<VotingMode>(activeMode);
   const [customMinutes, setCustomMinutes] = useState<string>('3');
+  const [timeLeftStr, setTimeLeftStr] = useState<string>('');
   const [itemInputs, setItemInputs] = useState<string[]>(() => {
     const existing = editMode === 'songs' ? activeSongs.map(s => s.title) : activeGenres;
     const initial = [...existing];
@@ -44,6 +45,25 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
   const DJ_LOGO = "https://res.cloudinary.com/drvs81bl0/image/upload/v1769722460/LOGO_DJ_PELIGRO_ihglvl.png";
   const publicUrl = window.location.origin + window.location.pathname + '#/';
+
+  // Actualizar el string del tiempo restante para el DJ
+  useEffect(() => {
+    if (!votingEndsAt) {
+      setTimeLeftStr('');
+      return;
+    }
+    const interval = setInterval(() => {
+      const diff = votingEndsAt - Date.now();
+      if (diff <= 0) {
+        setTimeLeftStr('TERMINADO');
+      } else {
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        setTimeLeftStr(`${m}:${s.toString().padStart(2, '0')}`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [votingEndsAt]);
 
   const stats = useMemo(() => {
     const items = activeMode === 'songs' ? activeSongs : activeGenres;
@@ -160,39 +180,55 @@ const DjDashboard: React.FC<DjDashboardProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5">
-              <p className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest mb-4">Cronómetro de Votación</p>
-              {!votingEndsAt ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => onStartVoting(3)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">3 MINUTOS</button>
-                    <button onClick={() => onStartVoting(5)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">5 MINUTOS</button>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="relative flex-grow">
-                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                      <input 
-                        type="number" 
-                        value={customMinutes}
-                        onChange={(e) => setCustomMinutes(e.target.value)}
-                        placeholder="Mins"
-                        className="w-full bg-black border border-white/5 rounded-xl pl-12 pr-4 py-4 font-bold text-white outline-none focus:border-[#F2CB05]"
-                      />
-                    </div>
-                    <button 
-                      onClick={() => onStartVoting(Number(customMinutes))}
-                      className="px-6 bg-[#F2CB05] text-black rounded-xl font-black text-xs uppercase italic"
-                    >
-                      INICIAR
-                    </button>
-                  </div>
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-[10px] font-black text-[#F2CB05] uppercase tracking-widest">Cronómetro de Votación</p>
+                {votingEndsAt && (
+                  <span className="text-[10px] font-black text-red-500 animate-pulse">
+                    TIME: {timeLeftStr}
+                  </span>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => onStartVoting(3)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">3 MINUTOS</button>
+                  <button onClick={() => onStartVoting(5)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase hover:bg-[#F2CB05] hover:text-black transition-all">5 MINUTOS</button>
                 </div>
-              ) : (
-                <button onClick={onStopVoting} className="w-full h-full bg-red-600 text-white rounded-xl font-black uppercase flex flex-col items-center justify-center gap-2 animate-pulse min-h-[120px]">
-                   <Square className="w-8 h-8 fill-current mb-2" />
-                   <span className="text-xl italic tracking-tighter">DETENER VOTOS</span>
-                </button>
-              )}
+                
+                <div className="flex gap-2">
+                  <div className="relative w-24">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
+                    <input 
+                      type="number" 
+                      value={customMinutes}
+                      onChange={(e) => setCustomMinutes(e.target.value)}
+                      placeholder="Min"
+                      className="w-full bg-black border border-white/5 rounded-xl pl-8 pr-2 py-4 font-bold text-white outline-none focus:border-[#F2CB05] text-xs"
+                    />
+                  </div>
+                  
+                  <button 
+                    onClick={() => onStartVoting(Number(customMinutes))}
+                    className="flex-grow bg-[#F2CB05] text-black rounded-xl font-black text-xs uppercase italic flex items-center justify-center gap-2 hover:bg-[#F2B705] transition-all"
+                  >
+                    <Play className="w-3 h-3 fill-current" /> INICIAR
+                  </button>
+                  
+                  <button 
+                    onClick={onStopVoting}
+                    disabled={!votingEndsAt}
+                    className={`px-6 rounded-xl font-black text-xs uppercase italic flex items-center justify-center gap-2 transition-all ${
+                      votingEndsAt 
+                        ? 'bg-red-600 text-white animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.4)]' 
+                        : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
+                    }`}
+                  >
+                    <Square className="w-3 h-3 fill-current" /> STOP
+                  </button>
+                </div>
+              </div>
             </section>
+
             <section className="bg-[#111] p-6 rounded-[2rem] border border-white/5 flex flex-col justify-center gap-4">
                <button onClick={onReset} className="w-full py-6 bg-white/5 rounded-xl text-xs font-black text-white/30 uppercase tracking-widest hover:text-red-500 transition-colors border border-dashed border-white/10">
                  <History className="w-4 h-4 inline mr-2" /> REINICIAR CONTADORES
