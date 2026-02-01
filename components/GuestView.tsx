@@ -79,6 +79,7 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
 
   return (
     <div className="max-w-screen-md mx-auto px-1 flex flex-col min-h-[100dvh] bg-black pb-10 overflow-x-hidden relative">
+      
       {/* Modales de estado */}
       <PostVoteModal isVisible={cooldownRemaining > 0 && !isClosed} cooldownMs={cooldownRemaining} />
       <VotingClosedModal isVisible={isClosed} />
@@ -165,9 +166,17 @@ const GuestView: React.FC<GuestViewProps> = ({ mode, songs, genres, onVote, voti
            <a href="https://instagram.com/djpeligroperu" target="_blank" className="text-white/20 hover:text-[#F2CB05] transition-all hover:scale-125"><Instagram className="w-12 h-12" /></a>
            <a href="https://tiktok.com/@djpeligroperu" target="_blank" className="text-white/20 hover:text-[#F2CB05] transition-all hover:scale-125"><TikTokIcon className="w-12 h-12" /></a>
         </div>
-        <Link to="/admin" className="opacity-[0.01] hover:opacity-100 p-10 transition-opacity"><Zap className="w-8 h-8 text-[#F2CB05] fill-current" /></Link>
         <p className="text-[8px] font-black uppercase tracking-[2em] opacity-5">DJ PELIGRO • EL QUE SABE SABE</p>
       </footer>
+
+      {/* ACCESO OCULTO MAESTRO - Siempre en la esquina inferior derecha */}
+      <Link 
+        to="/admin" 
+        className="fixed bottom-6 right-6 z-[2000] p-6 opacity-20 hover:opacity-100 transition-all active:scale-90 flex items-center justify-center"
+        title="Admin Access"
+      >
+        <Zap className="w-7 h-7 text-[#F2CB05] fill-current drop-shadow-[0_0_10px_rgba(242,203,5,0.8)]" />
+      </Link>
     </div>
   );
 };
